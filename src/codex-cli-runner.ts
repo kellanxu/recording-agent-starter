@@ -20,7 +20,7 @@ function runProcess(executable: string, args: string[], cwd: string, input: stri
     let stderr = '';
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', (chunk: string) => {
-      if (stderr.length < 4_096) stderr += chunk;
+      stderr = `${stderr}${chunk}`.slice(-4_096);
     });
     child.on('error', reject);
     child.on('close', (code) => {
@@ -37,7 +37,7 @@ function validateAction(value: unknown): CandidateAction {
   const action: CandidateAction = {};
   for (const key of ['object', 'action', 'due', 'acceptance'] as const) {
     const field = candidate[key];
-    if (field !== undefined && typeof field !== 'string') {
+    if (field !== undefined && field !== null && typeof field !== 'string') {
       throw new Error(`invalid candidate action field: ${key}`);
     }
     if (typeof field === 'string') action[key] = field;

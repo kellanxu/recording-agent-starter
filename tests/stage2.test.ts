@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { CodexRunner, CodexRunnerOutput } from '../src/codex-runner.js';
+import { validateCodexRunnerOutput } from '../src/codex-cli-runner.js';
 import { initializeWorkspace } from '../src/init.js';
 import { runSample, SAMPLE_RECORDING_ID } from '../src/sample.js';
 
@@ -33,6 +34,21 @@ async function initialized(name: string): Promise<{ workspaceRoot: string; libra
 }
 
 describe('Stage 2 offline sample', () => {
+  it('accepts structured-output nulls as deterministic missing action fields', () => {
+    expect(
+      validateCodexRunnerOutput({
+        schemaVersion: 1,
+        title: '安全样本',
+        category: '默认',
+        summary: '安全结论',
+        evidence: [],
+        candidateActions: [{ object: null, action: '整理检查清单', due: null, acceptance: null }],
+      }),
+    ).toMatchObject({
+      candidateActions: [{ action: '整理检查清单' }],
+    });
+  });
+
   it('creates one auditable Markdown main record', async () => {
     const { workspaceRoot, libraryRoot } = await initialized('record');
     const result = await runSample(workspaceRoot, undefined, new Date('2026-07-30T01:02:03.000Z'));

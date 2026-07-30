@@ -4,7 +4,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "title", "category", "summary", "evidence", "candidateActions"],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "type": "integer", "const": 1 },
     "title": { "type": "string", "minLength": 1 },
     "category": { "type": "string", "minLength": 1 },
     "summary": { "type": "string", "minLength": 1 },
@@ -17,11 +17,12 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
+        "required": ["object", "action", "due", "acceptance"],
         "properties": {
-          "object": { "type": "string" },
-          "action": { "type": "string" },
-          "due": { "type": "string" },
-          "acceptance": { "type": "string" }
+          "object": { "type": ["string", "null"] },
+          "action": { "type": ["string", "null"] },
+          "due": { "type": ["string", "null"] },
+          "acceptance": { "type": ["string", "null"] }
         }
       }
     }
