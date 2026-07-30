@@ -69,13 +69,19 @@ export async function runRuntime(
     },
     onResult: count,
   });
-  const imConsumer = new ImCommandConsumer(workspaceRoot, config.confirmationTarget, undefined, {
-    onReady: () => {
-      state.imConsumerReady = true;
-      if (state.minuteConsumerReady) state.status = 'running';
-      void persist();
+  const imConsumer = new ImCommandConsumer(
+    workspaceRoot,
+    config.confirmationTarget,
+    undefined,
+    {
+      onReady: () => {
+        state.imConsumerReady = true;
+        if (state.minuteConsumerReady) state.status = 'running';
+        void persist();
+      },
     },
-  });
+    { profile: config.bridgeProfile },
+  );
 
   let stopping = false;
   const retryTimer = setInterval(() => {
@@ -107,13 +113,7 @@ export async function runRuntime(
   process.once('SIGINT', stop);
 
   try {
-    await Promise.all([
-      minuteConsumer.start(),
-      imConsumer.start(),
-      plane.runDailyCatchUp(client).then((results) => {
-        results.forEach(count);
-      }),
-    ]);
+    await Promise.all([minuteConsumer.start(), imConsumer.start()]);
     state.status = 'stopped';
     await persist();
   } catch {

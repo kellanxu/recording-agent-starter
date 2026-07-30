@@ -3,6 +3,7 @@ import { constants } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
+import { bridgeProfileEnvironment } from './bridge-profile.js';
 import { readMachineConfig } from './config.js';
 
 export type DiagnosticLevel = 'green' | 'yellow' | 'red';
@@ -18,14 +19,16 @@ export interface DoctorOptions {
   runCommand?: (
     command: string,
     args: readonly string[],
+    options?: { env?: NodeJS.ProcessEnv },
   ) => { status: number | null; stdout: string; stderr: string; error?: Error };
 }
 
 function defaultRunCommand(
   command: string,
   args: readonly string[],
+  options: { env?: NodeJS.ProcessEnv } = {},
 ): { status: number | null; stdout: string; stderr: string; error?: Error } {
-  const result = spawnSync(command, args, { encoding: 'utf8' });
+  const result = spawnSync(command, args, { encoding: 'utf8', env: options.env });
   return {
     status: result.status,
     stdout: result.stdout,
@@ -128,7 +131,11 @@ function liveDiagnostics(
   const codex = runCommand('codex', ['login', 'status']);
   const bridge = runCommand('lark-channel-bridge', ['profile', 'list']);
   const lark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify']);
+  const bridgeLark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify'], {
+    env: bridgeProfileEnvironment(bridgeProfile),
+  });
   let larkReady = false;
+  let bridgeBotReady = false;
   try {
     const status = JSON.parse(lark.stdout) as {
       verified?: boolean;
@@ -141,6 +148,18 @@ function liveDiagnostics(
       status.identities.user.tokenStatus === 'valid';
   } catch {
     larkReady = false;
+  }
+  try {
+    const status = JSON.parse(bridgeLark.stdout) as {
+      verified?: boolean;
+      identities?: { bot?: { status?: string } };
+    };
+    bridgeBotReady =
+      bridgeLark.status === 0 &&
+      status.verified === true &&
+      status.identities?.bot?.status === 'ready';
+  } catch {
+    bridgeBotReady = false;
   }
   const bridgeProfileFound =
     bridge.status === 0 &&
@@ -163,6 +182,11 @@ function liveDiagnostics(
       level: larkReady ? 'green' : 'red',
       name: 'feishu-user-auth',
       message: larkReady ? 'verified and valid' : 'not ready or invalid',
+    },
+    {
+      level: bridgeBotReady ? 'green' : 'red',
+      name: 'feishu-bridge-bot-auth',
+      message: bridgeBotReady ? 'verified and ready' : 'not ready or invalid',
     },
   ];
 }

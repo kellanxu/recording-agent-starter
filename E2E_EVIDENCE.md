@@ -9,7 +9,7 @@ Updated: 2026-07-30
 - Codex CLI: `0.144.1`
 - `lark-channel-bridge`: `0.5.8`
 - `lark-cli`: `1.0.68`
-- Test result: 8 files, 37 tests passed
+- Test result: 8 files, 38 tests passed
 - Build, format, lint, typecheck, privacy scan: passed
 
 The mock integration covers:

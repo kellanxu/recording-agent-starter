@@ -28,9 +28,14 @@ Incoming commands are consumed from the flat `im.message.receive_v1` NDJSON sche
 Invalid IDs, unknown categories, ambiguous objects and malformed commands stop with
 `needs_clarification`. Commands are idempotent by incoming message ID.
 
+Minutes reads continue to use the user's normal `lark-cli` authorization. Confirmation sends and
+reply events are isolated in the configured `lark-channel-bridge` profile by setting that profile's
+`LARK_CHANNEL_CONFIG` and `LARKSUITE_CLI_CONFIG_DIR`. The Starter derives those paths at runtime and
+does not copy app credentials into its workspace.
+
 Actual message sending is an external write. `catch-up` requires
 `--confirm-external-writes`, and the future service start gate must show the configured target and
 sending identity before enabling it.
 
-This is a verified interface and mock-tested implementation, not evidence that a real confirmation
-message has been sent.
+This is a verified interface and mock-tested implementation. Real E2E evidence remains tracked
+separately in `E2E_EVIDENCE.md`.

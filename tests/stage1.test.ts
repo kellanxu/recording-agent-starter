@@ -148,7 +148,7 @@ describe('doctor', () => {
     });
     const diagnostics = await diagnose(workspaceRoot, {
       live: true,
-      runCommand: (command, args) => {
+      runCommand: (command, args, options) => {
         if (command === 'lark-channel-bridge' && args[0] === 'profile') {
           return {
             status: 0,
@@ -157,6 +157,16 @@ describe('doctor', () => {
           };
         }
         if (command === 'lark-cli' && args[0] === 'auth') {
+          if (options?.env?.LARK_CHANNEL_PROFILE === 'SafeProfile') {
+            return {
+              status: 0,
+              stdout: JSON.stringify({
+                verified: true,
+                identities: { bot: { status: 'ready' } },
+              }),
+              stderr: '',
+            };
+          }
           return {
             status: 0,
             stdout: JSON.stringify({

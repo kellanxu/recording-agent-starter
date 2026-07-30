@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
+import { bridgeProfileEnvironment } from './bridge-profile.js';
 import { readMachineConfig } from './config.js';
 import type { MachineConfig } from './config.js';
 import type { RecordEntry, RecordRepository } from './record-repository.js';
@@ -72,6 +73,7 @@ export class LarkCliConfirmationNotifier implements ConfirmationNotifier {
   constructor(
     private readonly workspaceRoot: string,
     private readonly target: NonNullable<MachineConfig['confirmationTarget']>,
+    private readonly bridgeProfile: string,
     private readonly executable = 'lark-cli',
   ) {}
 
@@ -96,11 +98,7 @@ export class LarkCliConfirmationNotifier implements ConfirmationNotifier {
       {
         cwd: this.workspaceRoot,
         encoding: 'utf8',
-        env: {
-          ...process.env,
-          LARKSUITE_CLI_NO_UPDATE_NOTIFIER: '1',
-          LARKSUITE_CLI_NO_SKILLS_NOTIFIER: '1',
-        },
+        env: bridgeProfileEnvironment(this.bridgeProfile),
       },
     );
     const envelope = JSON.parse(stdout) as {
@@ -122,5 +120,9 @@ export async function configuredNotifier(
   if (config.confirmationTarget === undefined) {
     throw new Error('confirmation target is not configured');
   }
-  return new LarkCliConfirmationNotifier(workspaceRoot, config.confirmationTarget);
+  return new LarkCliConfirmationNotifier(
+    workspaceRoot,
+    config.confirmationTarget,
+    config.bridgeProfile,
+  );
 }

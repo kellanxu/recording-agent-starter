@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { CodexRunner } from '../src/codex-runner.js';
+import { bridgeProfileEnvironment } from '../src/bridge-profile.js';
 import { ConfirmationService, parseConfirmationCommand } from '../src/confirmation.js';
 import type { ConfirmationNotifier } from '../src/confirmation-notifier.js';
 import { parseImCommandEvent } from '../src/im-command-consumer.js';
@@ -186,6 +187,20 @@ describe('Stage 4 confirmation loop', () => {
 });
 
 describe('verified IM event adapter', () => {
+  it('isolates bot commands in the configured Bridge profile', () => {
+    const env = bridgeProfileEnvironment('SafeProfile', {}, '/safe/lark-channel');
+    expect(env).toMatchObject({
+      LARK_CHANNEL: '1',
+      LARK_CHANNEL_HOME: '/safe/lark-channel',
+      LARK_CHANNEL_PROFILE: 'SafeProfile',
+      LARK_CHANNEL_CONFIG: '/safe/lark-channel/profiles/SafeProfile/lark-cli-source/config.json',
+      LARKSUITE_CLI_CONFIG_DIR: '/safe/lark-channel/profiles/SafeProfile/lark-cli',
+    });
+    expect(() => bridgeProfileEnvironment('../escape', {}, '/safe/lark-channel')).toThrow(
+      'invalid',
+    );
+  });
+
   it('parses the flat lark-cli receive event', () => {
     expect(
       parseImCommandEvent({

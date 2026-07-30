@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createInterface } from 'node:readline';
 
+import { bridgeProfileEnvironment } from './bridge-profile.js';
 import type { MachineConfig } from './config.js';
 import { ConfirmationService, type ConfirmationResult } from './confirmation.js';
 
@@ -59,15 +60,17 @@ export class ImCommandConsumer {
   start(): Promise<void> {
     if (this.child !== undefined) throw new Error('IM command consumer is already running');
     const args = ['event', 'consume', IM_RECEIVE_EVENT, '--as', 'bot'];
-    if (this.options.profile !== undefined) args.push('--profile', this.options.profile);
     const child = spawn(this.options.executable ?? 'lark-cli', args, {
       cwd: this.workspaceRoot,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: {
-        ...process.env,
-        LARKSUITE_CLI_NO_UPDATE_NOTIFIER: '1',
-        LARKSUITE_CLI_NO_SKILLS_NOTIFIER: '1',
-      },
+      env:
+        this.options.profile === undefined
+          ? {
+              ...process.env,
+              LARKSUITE_CLI_NO_UPDATE_NOTIFIER: '1',
+              LARKSUITE_CLI_NO_SKILLS_NOTIFIER: '1',
+            }
+          : bridgeProfileEnvironment(this.options.profile),
     });
     this.child = child;
     const stdout = createInterface({ input: child.stdout });

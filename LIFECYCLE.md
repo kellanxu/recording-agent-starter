@@ -11,8 +11,8 @@ the Starter workspace path. The plist uses:
 - workspace-local stdout and stderr logs
 
 This design supports process restart and user-session restart recovery. The generated plist and
-atomic control-state tests pass, but a real LaunchAgent has not yet been installed in Stage 5
-development.
+atomic control-state tests pass. Real installation evidence is tracked separately in
+`E2E_EVIDENCE.md`.
 
 Before installation, `start` prints the configured confirmation target and sending identity. It
 does nothing unless `--confirm-external-writes` is present.
@@ -20,6 +20,11 @@ does nothing unless `--confirm-external-writes` is present.
 `recording-agent stop` uses `launchctl bootout`. The plist remains available for a later explicit
 start. Event consumers receive SIGTERM and close stdin, allowing `lark-cli` to unsubscribe cleanly.
 The Starter never uses `kill -9`.
+
+Startup does not immediately scan historical Minutes. This prevents one service installation from
+sending a burst of confirmations for older records. The hourly scheduler invokes a persistent
+once-per-day catch-up gate; an operator can also run the explicit one-day `catch-up` command after
+reviewing its external-write warning.
 
 ## Windows beta and development foreground mode
 
