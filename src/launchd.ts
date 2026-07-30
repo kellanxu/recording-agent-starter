@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 
 import { writeFileAtomic } from './atomic-file.js';
@@ -32,6 +32,19 @@ export function renderLaunchdPlist(
   runtimeEntry: string,
 ): string {
   const label = launchdLabel(workspaceRoot);
+  const executablePath = [
+    dirname(nodeExecutable),
+    join(homedir(), '.local', 'bin'),
+    join(homedir(), '.hermes', 'node', 'bin'),
+    '/opt/homebrew/bin',
+    '/usr/local/bin',
+    '/usr/bin',
+    '/bin',
+    '/usr/sbin',
+    '/sbin',
+  ]
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .join(':');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -53,6 +66,11 @@ export function renderLaunchdPlist(
   <true/>
   <key>ProcessType</key>
   <string>Background</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>${xml(executablePath)}</string>
+  </dict>
   <key>StandardOutPath</key>
   <string>${xml(join(workspaceRoot, 'logs', 'service.stdout.log'))}</string>
   <key>StandardErrorPath</key>

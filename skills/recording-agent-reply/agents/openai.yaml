@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Recording Agent Reply'
+  short_description: 'Route Feishu confirmation replies into the local Starter'
+  default_prompt: 'Use $recording-agent-reply to apply this Feishu recording confirmation command.'

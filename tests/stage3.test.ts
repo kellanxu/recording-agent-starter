@@ -218,6 +218,28 @@ describe('deterministic event control plane', () => {
     await expect(plane.catchUp(2, { list: () => Promise.resolve([]) })).rejects.toThrow('--days 1');
   });
 
+  it('limits an explicit catch-up to exactly one requested minute token', async () => {
+    const calls: string[] = [];
+    const plane = new ControlPlane(
+      testRoot('exact-token'),
+      { fetch: () => Promise.resolve({ transcript: '安全逐字稿' }) },
+      processor(calls),
+    );
+    const source: CatchUpSource = {
+      list: () =>
+        Promise.resolve([
+          event('catchup-1', 'token-1', 'catch-up'),
+          event('catchup-2', 'token-2', 'catch-up'),
+        ]),
+    };
+
+    expect((await plane.catchUp(1, source, 'token-2'))[0]?.outcome).toBe('processed');
+    expect(calls).toEqual(['catchup-2']);
+    await expect(plane.catchUp(1, source, 'token-missing')).rejects.toThrow(
+      'requested minute token was not found',
+    );
+  });
+
   it('uses the structured runner contract to create one persistent live record', async () => {
     const root = testRoot('live-record');
     const workspaceRoot = join(root, 'workspace');

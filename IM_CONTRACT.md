@@ -16,8 +16,9 @@ Each pending record reserves the deterministic idempotency key
 message ID. An ambiguous send failure is marked `unknown` and is not automatically repeated, which
 avoids silently sending a duplicate.
 
-Incoming commands are consumed from the flat `im.message.receive_v1` NDJSON schema. Only `text` or
-`post` messages from the configured chat or user are accepted:
+The configured `lark-channel-bridge` remains the only IM long connection. It delivers the user's
+reply and `bridge_context.messageIds` to Codex. The installed `recording-agent-reply` Skill accepts
+only these exact commands:
 
 ```text
 确认 R-XXXX
@@ -29,9 +30,19 @@ Invalid IDs, unknown categories, ambiguous objects and malformed commands stop w
 `needs_clarification`. Commands are idempotent by incoming message ID.
 
 Minutes reads continue to use the user's normal `lark-cli` authorization. Confirmation sends and
-reply events are isolated in the configured `lark-channel-bridge` profile by setting that profile's
-`LARK_CHANNEL_CONFIG` and `LARKSUITE_CLI_CONFIG_DIR`. The Starter derives those paths at runtime and
-does not copy app credentials into its workspace.
+the existing Bridge remain isolated in the configured profile. `recording-agent bridge-link`
+installs a generic Codex Skill and a separate mode-`0600` machine registry; the Skill contains no
+workspace path, chat/user ID or credentials. Codex calls:
+
+```text
+recording-agent reply --workspace <path> --message-id <id> --text <exact-command>
+```
+
+`reply` only updates the existing local Markdown record and audit registry. It never calls Feishu,
+creates tasks, publishes content or deletes a recording. The verified direct
+`im.message.receive_v1` adapter remains code-level evidence for a separate-app route, but it is not
+started when the existing Bridge owns the application bus. P2P polling is not enabled as the main
+or fallback path in V1.
 
 Actual message sending is an external write. `catch-up` requires
 `--confirm-external-writes`, and the future service start gate must show the configured target and

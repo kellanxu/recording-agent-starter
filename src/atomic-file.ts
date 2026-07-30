@@ -1,4 +1,5 @@
 import { chmod, mkdir, open, rename, rm } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { dirname } from 'node:path';
 
 export async function writeFileAtomic(
@@ -9,7 +10,7 @@ export async function writeFileAtomic(
   const parent = dirname(targetPath);
   await mkdir(parent, { recursive: true });
 
-  const temporaryPath = `${targetPath}.${process.pid}.${Date.now()}.tmp`;
+  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
   const handle = await open(temporaryPath, 'wx', mode);
 
   try {

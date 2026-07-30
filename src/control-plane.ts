@@ -116,11 +116,22 @@ export class ControlPlane {
     return results;
   }
 
-  async catchUp(days: number, source: CatchUpSource): Promise<IngestResult[]> {
+  async catchUp(
+    days: number,
+    source: CatchUpSource,
+    minuteToken?: string,
+  ): Promise<IngestResult[]> {
     if (!Number.isInteger(days) || days !== 1) {
       throw new Error('catch-up currently requires --days 1');
     }
-    const events = await source.list(days);
+    const listedEvents = await source.list(days);
+    const events =
+      minuteToken === undefined
+        ? listedEvents
+        : listedEvents.filter((event) => event.minuteToken === minuteToken);
+    if (minuteToken !== undefined && events.length === 0) {
+      throw new Error('requested minute token was not found in the one-day window');
+    }
     const results: IngestResult[] = [];
     for (const event of events) results.push(await this.ingest({ ...event, source: 'catch-up' }));
     return results;

@@ -4,8 +4,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import type { CodexRunner } from '../src/codex-runner.js';
 import { bridgeProfileEnvironment } from '../src/bridge-profile.js';
+import { runCli, type CliIO } from '../src/cli.js';
 import { ConfirmationService, parseConfirmationCommand } from '../src/confirmation.js';
 import type { ConfirmationNotifier } from '../src/confirmation-notifier.js';
+import { ExitCode } from '../src/exit-codes.js';
 import { parseImCommandEvent } from '../src/im-command-consumer.js';
 import { initializeWorkspace } from '../src/init.js';
 import { LiveTranscriptProcessor } from '../src/live-processor.js';
@@ -91,6 +93,33 @@ describe('confirmation command parser', () => {
 });
 
 describe('Stage 4 confirmation loop', () => {
+  it('exposes an idempotent local-only reply CLI for Bridge/Codex', async () => {
+    const { workspaceRoot, repository } = await liveRecord('reply-cli');
+    const stdout: string[] = [];
+    const stderr: string[] = [];
+    const io: CliIO = {
+      stdout: (message) => stdout.push(message),
+      stderr: (message) => stderr.push(message),
+    };
+    const args = [
+      'reply',
+      '--workspace',
+      workspaceRoot,
+      '--message-id',
+      'safe-bridge-message',
+      '--text',
+      '确认 R-0002',
+    ];
+    expect(await runCli(args, io)).toBe(ExitCode.success);
+    expect(await runCli(args, io)).toBe(ExitCode.success);
+    expect(stdout).toEqual([
+      '{"outcome":"applied","recordingId":"R-0002"}',
+      '{"outcome":"duplicate","recordingId":"R-0002"}',
+    ]);
+    expect(stderr).toEqual([]);
+    expect((await repository.get('R-0002'))?.status).toBe('confirmed');
+  });
+
   it('sends only one transcript-free confirmation sheet per pending record', async () => {
     const root = testRoot('notify');
     const workspaceRoot = join(root, 'workspace');

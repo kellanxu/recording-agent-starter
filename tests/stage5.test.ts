@@ -1,4 +1,4 @@
-import { rm, stat } from 'node:fs/promises';
+import { readFile, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -45,6 +45,8 @@ describe('macOS launchd contract', () => {
     expect(plist).toContain('<key>KeepAlive</key>');
     expect(plist).toContain('/safe/workspace/logs/service.stdout.log');
     expect(plist).toContain('<string>--workspace</string>');
+    expect(plist).toContain('.local/bin');
+    expect(plist).toContain('/safe');
     expect(plist).not.toMatch(/Transcript|secret|token/i);
   });
 });
@@ -70,6 +72,28 @@ describe('service state', () => {
     expect((await stat(join(root, 'state', 'service.json'))).mode & 0o777).toBe(0o600);
     const publicStatus = JSON.stringify(publicServiceStatus(state));
     expect(publicStatus).not.toMatch(/transcript|minute_token|secret|credential/i);
+  });
+
+  it('allows concurrent atomic state writes without temporary-path collisions', async () => {
+    const root = testRoot('concurrent-state');
+    const states = Array.from({ length: 20 }, (_, index): ServiceState => ({
+      schemaVersion: 1,
+      status: 'running',
+      pid: 12000 + index,
+      platform: 'darwin',
+      startedAt: '2026-07-30T00:00:00.000Z',
+      updatedAt: `2026-07-30T00:00:${String(index).padStart(2, '0')}.000Z`,
+      minuteConsumerReady: true,
+      imConsumerReady: true,
+      processedCount: index,
+      pendingCount: 0,
+      failedCount: 0,
+    }));
+    await Promise.all(states.map((state) => writeServiceState(root, state)));
+    const parsed = JSON.parse(
+      await readFile(join(root, 'state', 'service.json'), 'utf8'),
+    ) as ServiceState;
+    expect(states).toContainEqual(parsed);
   });
 });
 

@@ -1,6 +1,10 @@
+import { symlink, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import { join, resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
-import { commandHelpText, helpText, runCli, type CliIO } from '../src/cli.js';
+import { commandHelpText, helpText, mainModuleMatches, runCli, type CliIO } from '../src/cli.js';
 import { ExitCode } from '../src/exit-codes.js';
 
 function capture(): { io: CliIO; stdout: string[]; stderr: string[] } {
@@ -18,6 +22,21 @@ function capture(): { io: CliIO; stdout: string[]; stderr: string[] } {
 }
 
 describe('CLI baseline', () => {
+  it('recognizes a globally linked symlink as the executable module', async () => {
+    const root = resolve('tmp', `cli-symlink-${process.pid}`);
+    const target = join(root, 'cli.js');
+    const link = join(root, 'recording-agent');
+    const { mkdir, rm } = await import('node:fs/promises');
+    await mkdir(root, { recursive: true });
+    try {
+      await writeFile(target, '#!/usr/bin/env node\n', 'utf8');
+      await symlink(target, link);
+      expect(mainModuleMatches(link, pathToFileURL(target).href)).toBe(true);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it('prints help and exits successfully', async () => {
     const output = capture();
 

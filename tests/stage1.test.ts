@@ -3,6 +3,7 @@ import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { bridgeReplyLinked, linkBridgeReply } from '../src/bridge-reply.js';
 import { runCli, type CliIO } from '../src/cli.js';
 import { readMachineConfig } from '../src/config.js';
 import { diagnose, highestDiagnosticLevel } from '../src/doctor.js';
@@ -64,6 +65,40 @@ describe('Stage 1 initialization', () => {
     expect(skill).not.toContain(workspaceRoot);
     expect(skill).not.toContain(libraryRoot);
     expect(skill).not.toContain('PersonalAgent');
+  });
+
+  it('links a machine-configured Bridge reply Skill without embedding local paths', async () => {
+    const root = testRoot('bridge-link');
+    const workspaceRoot = join(root, 'workspace');
+    await initializeWorkspace({
+      workspaceRoot,
+      libraryRoot: join(root, 'library'),
+      source: '本人飞书妙记',
+      categories: ['工作'],
+      retentionRule: '保留证据',
+      bridgeProfile: 'SafeProfile',
+      confirmationTarget: {
+        kind: 'chat',
+        id: 'safe-chat-target',
+        identity: 'bot',
+      },
+    });
+    const options = {
+      recordingAgentHome: join(root, 'recording-agent-home'),
+      codexHome: join(root, 'codex-home'),
+      sourceSkillRoot: resolve('skills', 'recording-agent-reply'),
+    };
+    const paths = await linkBridgeReply(
+      workspaceRoot,
+      new Date('2026-07-30T00:00:00.000Z'),
+      options,
+    );
+    const skill = await readFile(paths.skillPath, 'utf8');
+    const registryMode = (await stat(paths.registryPath)).mode & 0o777;
+    expect(skill).not.toContain(workspaceRoot);
+    expect(skill).not.toContain('safe-chat-target');
+    expect(registryMode).toBe(0o600);
+    expect(await bridgeReplyLinked(workspaceRoot, options)).toBe(true);
   });
 
   it('asks one question at a time in the required order', async () => {
@@ -148,6 +183,7 @@ describe('doctor', () => {
     });
     const diagnostics = await diagnose(workspaceRoot, {
       live: true,
+      isBridgeReplyLinked: () => Promise.resolve(true),
       runCommand: (command, args, options) => {
         if (command === 'lark-channel-bridge' && args[0] === 'profile') {
           return {

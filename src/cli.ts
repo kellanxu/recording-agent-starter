@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
+import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
+import { bridgeReplyLinked, linkBridgeReply } from './bridge-reply.js';
 import { CodexCliRunner } from './codex-cli-runner.js';
+import { ConfirmationService } from './confirmation.js';
 import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane } from './control-plane.js';
 import { readMachineConfig } from './config.js';
@@ -20,7 +23,17 @@ import { runSample } from './sample.js';
 import { publicServiceStatus, readServiceState } from './service-state.js';
 
 const VERSION = '0.0.0';
-const COMMANDS = ['init', 'doctor', 'sample', 'start', 'status', 'stop', 'catch-up'] as const;
+const COMMANDS = [
+  'init',
+  'doctor',
+  'sample',
+  'start',
+  'status',
+  'stop',
+  'catch-up',
+  'bridge-link',
+  'reply',
+] as const;
 
 type Command = (typeof COMMANDS)[number];
 
@@ -167,6 +180,7 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
   try {
     const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
     const daysText = option(args, '--days');
+    const minuteToken = option(args, '--minute-token');
     if (daysText === undefined || daysText !== '1') {
       throw new Error('catch-up requires --days 1');
     }
@@ -183,14 +197,16 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
       await configuredNotifier(workspaceRoot),
     );
     const controlPlane = new ControlPlane(workspaceRoot, client, processor);
-    const results = await controlPlane.catchUp(1, client);
+    const results = await controlPlane.catchUp(1, client, minuteToken);
     const counts = results.reduce<Record<string, number>>((summary, result) => {
       summary[result.outcome] = (summary[result.outcome] ?? 0) + 1;
       return summary;
     }, {});
     io.stdout(`Catch-up result: ${JSON.stringify(counts)}`);
     io.stdout(
-      'Only the requested one-day window was searched; one confirmation message is sent for each new pending record.',
+      minuteToken === undefined
+        ? 'Only the requested one-day window was searched; one confirmation message is sent for each new pending record.'
+        : 'Only the requested minute token in the one-day window was processed; no other recording was changed.',
     );
     return results.some((result) => result.outcome === 'failed')
       ? ExitCode.failure
@@ -220,6 +236,9 @@ async function runStart(args: readonly string[], io: CliIO): Promise<ExitCodeVal
       );
       return ExitCode.usage;
     }
+    if (!(await bridgeReplyLinked(workspaceRoot))) {
+      throw new Error('Bridge reply link is not installed; run recording-agent bridge-link first');
+    }
 
     const foreground = args.includes('--foreground');
     if (foreground) {
@@ -242,6 +261,48 @@ async function runStart(args: readonly string[], io: CliIO): Promise<ExitCodeVal
   } catch (error) {
     const message = error instanceof Error ? error.message : 'unknown start error';
     io.stderr(`Start failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
+async function runBridgeLink(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const result = await linkBridgeReply(workspaceRoot);
+    io.stdout(`Bridge reply Skill installed: ${result.skillPath}`);
+    io.stdout(`Bridge reply machine config: ${result.registryPath}`);
+    io.stdout('No Feishu message, task, publication or recording change was created.');
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown Bridge link error';
+    io.stderr(`Bridge link failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
+async function runReply(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const messageId = option(args, '--message-id');
+    const text = option(args, '--text');
+    if (messageId === undefined || text === undefined) {
+      throw new Error('reply requires --message-id and --text');
+    }
+    const result = await new ConfirmationService(workspaceRoot).apply(text, messageId);
+    if (result.outcome === 'needs_clarification') {
+      io.stderr(JSON.stringify(result));
+      return ExitCode.failure;
+    }
+    io.stdout(
+      JSON.stringify({
+        outcome: result.outcome,
+        recordingId: result.recordingId,
+      }),
+    );
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown reply error';
+    io.stderr(`Reply failed: ${message}`);
     return ExitCode.failure;
   }
 }
@@ -300,13 +361,15 @@ Commands:
   status               Show local service and queue status
   stop                 Stop the local recording event loop
   catch-up --days 1    Recover missed recording events
+  bridge-link          Link the existing Bridge/Codex reply path
+  reply                Apply one idempotent Bridge reply locally
 
 Options:
   -h, --help           Show this help
   -v, --version        Show version
 
 Current milestone:
-  Stage 5 lifecycle commands are implemented.
+  Phase 3 pre-release implementation and offline gates are implemented.
   Real end-to-end validation has not yet passed.`;
 }
 
@@ -326,6 +389,7 @@ export function commandHelpText(command: Command): string {
     'catch-up': `recording-agent catch-up
   [--workspace <absolute-path>]
   --days 1
+  [--minute-token <exact-token>]
   --confirm-external-writes`,
     start: `recording-agent start
   [--workspace <absolute-path>]
@@ -333,6 +397,11 @@ export function commandHelpText(command: Command): string {
   --confirm-external-writes`,
     status: 'recording-agent status [--workspace <absolute-path>]',
     stop: 'recording-agent stop [--workspace <absolute-path>]',
+    'bridge-link': 'recording-agent bridge-link [--workspace <absolute-path>]',
+    reply: `recording-agent reply
+  [--workspace <absolute-path>]
+  --message-id <bridge-message-id>
+  --text <exact-command-text>`,
   };
   return `${usage[command]}
 
@@ -374,14 +443,24 @@ export async function runCli(
   if (first === 'start') return runStart(args.slice(1), io);
   if (first === 'status') return runStatus(args.slice(1), io);
   if (first === 'stop') return runStop(args.slice(1), io);
+  if (first === 'bridge-link') return runBridgeLink(args.slice(1), io);
+  if (first === 'reply') return runReply(args.slice(1), io);
 
   io.stderr('Internal command dispatch error.');
   return ExitCode.failure;
 }
 
+export function mainModuleMatches(entry: string | undefined, moduleUrl: string): boolean {
+  if (entry === undefined) return false;
+  try {
+    return moduleUrl === pathToFileURL(realpathSync(entry)).href;
+  } catch {
+    return false;
+  }
+}
+
 function isMainModule(): boolean {
-  const entry = process.argv[1];
-  return entry !== undefined && import.meta.url === pathToFileURL(entry).href;
+  return mainModuleMatches(process.argv[1], import.meta.url);
 }
 
 if (isMainModule()) {

@@ -18,8 +18,9 @@ Before installation, `start` prints the configured confirmation target and sendi
 does nothing unless `--confirm-external-writes` is present.
 
 `recording-agent stop` uses `launchctl bootout`. The plist remains available for a later explicit
-start. Event consumers receive SIGTERM and close stdin, allowing `lark-cli` to unsubscribe cleanly.
-The Starter never uses `kill -9`.
+start. The Minutes event consumer receives SIGTERM and closes stdin, allowing `lark-cli` to
+unsubscribe cleanly. The existing Bridge remains the sole IM long connection and is not stopped or
+reconfigured by Starter lifecycle commands. The Starter never uses `kill -9`.
 
 Startup does not immediately scan historical Minutes. This prevents one service installation from
 sending a burst of confirmations for older records. The hourly scheduler invokes a persistent

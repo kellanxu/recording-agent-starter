@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import { bridgeProfileEnvironment } from './bridge-profile.js';
+import { bridgeReplyLinked } from './bridge-reply.js';
 import { readMachineConfig } from './config.js';
 
 export type DiagnosticLevel = 'green' | 'yellow' | 'red';
@@ -16,6 +17,7 @@ export interface Diagnostic {
 
 export interface DoctorOptions {
   live?: boolean;
+  isBridgeReplyLinked?: (workspaceRoot: string) => Promise<boolean>;
   runCommand?: (
     command: string,
     args: readonly string[],
@@ -111,6 +113,22 @@ export async function diagnose(
           message: `${config.confirmationTarget.kind} target configured for ${config.confirmationTarget.identity} identity`,
         },
   );
+  if (config.confirmationTarget === undefined) {
+    diagnostics.push({
+      level: 'yellow',
+      name: 'bridge-reply-link',
+      message: 'not required until a confirmation target is configured',
+    });
+  } else {
+    const linked = await (options.isBridgeReplyLinked ?? bridgeReplyLinked)(workspaceRoot);
+    diagnostics.push({
+      level: linked ? 'green' : 'red',
+      name: 'bridge-reply-link',
+      message: linked
+        ? 'existing Bridge/Codex reply path is linked'
+        : 'not linked; run recording-agent bridge-link',
+    });
+  }
   if (options.live === true) {
     diagnostics.push(...liveDiagnostics(config.bridgeProfile, runCommand));
   } else {

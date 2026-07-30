@@ -2,12 +2,12 @@
 
 import { pathToFileURL } from 'node:url';
 
+import { bridgeReplyLinked } from './bridge-reply.js';
 import { CodexCliRunner } from './codex-cli-runner.js';
 import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane, type IngestResult } from './control-plane.js';
 import { readMachineConfig } from './config.js';
 import { MinuteEventConsumer } from './event-consumer.js';
-import { ImCommandConsumer } from './im-command-consumer.js';
 import { LarkCliMinutesClient } from './lark-minutes-client.js';
 import { LiveTranscriptProcessor } from './live-processor.js';
 import { type ServiceState, writeServiceState } from './service-state.js';
@@ -27,6 +27,9 @@ export async function runRuntime(
   if (config.confirmationTarget === undefined) {
     throw new Error('confirmation target is not configured');
   }
+  if (!(await bridgeReplyLinked(workspaceRoot))) {
+    throw new Error('Bridge reply link is not installed');
+  }
   const startedAt = now().toISOString();
   const state: ServiceState = {
     schemaVersion: 1,
@@ -36,7 +39,7 @@ export async function runRuntime(
     startedAt,
     updatedAt: startedAt,
     minuteConsumerReady: false,
-    imConsumerReady: false,
+    imConsumerReady: true,
     processedCount: 0,
     pendingCount: 0,
     failedCount: 0,
@@ -69,20 +72,6 @@ export async function runRuntime(
     },
     onResult: count,
   });
-  const imConsumer = new ImCommandConsumer(
-    workspaceRoot,
-    config.confirmationTarget,
-    undefined,
-    {
-      onReady: () => {
-        state.imConsumerReady = true;
-        if (state.minuteConsumerReady) state.status = 'running';
-        void persist();
-      },
-    },
-    { profile: config.bridgeProfile },
-  );
-
   let stopping = false;
   const retryTimer = setInterval(() => {
     void plane.retryDue().then((results) => {
@@ -107,13 +96,12 @@ export async function runRuntime(
     clearInterval(catchUpTimer);
     clearInterval(heartbeatTimer);
     minuteConsumer.stop();
-    imConsumer.stop();
   };
   process.once('SIGTERM', stop);
   process.once('SIGINT', stop);
 
   try {
-    await Promise.all([minuteConsumer.start(), imConsumer.start()]);
+    await minuteConsumer.start();
     state.status = 'stopped';
     await persist();
   } catch {
