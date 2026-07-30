@@ -1,0 +1,49 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local runtime and state
+.recording-agent/
+runtime/
+state/
+logs/
+*.pid
+*.lock
+
+# User configuration and secrets
+.env
+.env.*
+!.env.example
+config.local.*
+*.secret
+*.token
+credentials/
+
+# User workspaces and recordings
+starter-workspace/00_Inbox/*
+starter-workspace/10_Recordings/*
+starter-workspace/90_Config/*
+!starter-workspace/00_Inbox/.gitkeep
+!starter-workspace/10_Recordings/.gitkeep
+!starter-workspace/90_Config/.gitkeep
+*.m4a
+*.mp3
+*.wav
+*.mp4
+*.qta
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Temporary and release files
+tmp/
+.tmp/
+release/
+*.zip
+*.sha256
+
