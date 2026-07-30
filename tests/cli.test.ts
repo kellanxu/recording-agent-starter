@@ -18,28 +18,28 @@ function capture(): { io: CliIO; stdout: string[]; stderr: string[] } {
 }
 
 describe('CLI baseline', () => {
-  it('prints help and exits successfully', () => {
+  it('prints help and exits successfully', async () => {
     const output = capture();
 
-    expect(runCli(['--help'], output.io)).toBe(ExitCode.success);
+    expect(await runCli(['--help'], output.io)).toBe(ExitCode.success);
     expect(output.stdout).toEqual([helpText()]);
     expect(output.stderr).toEqual([]);
   });
 
-  it('rejects unknown commands with the usage exit code', () => {
+  it('rejects unknown commands with the usage exit code', async () => {
     const output = capture();
 
-    expect(runCli(['unexpected'], output.io)).toBe(ExitCode.usage);
+    expect(await runCli(['unexpected'], output.io)).toBe(ExitCode.usage);
     expect(output.stdout).toEqual([]);
     expect(output.stderr.join('\n')).toContain('Unknown command');
   });
 
-  it.each(['init', 'doctor', 'sample', 'start', 'status', 'stop', 'catch-up'])(
+  it.each(['sample', 'start', 'status', 'stop', 'catch-up'])(
     'does not pretend that %s is implemented',
-    (command) => {
+    async (command) => {
       const output = capture();
 
-      expect(runCli([command], output.io)).toBe(ExitCode.unavailable);
+      expect(await runCli([command], output.io)).toBe(ExitCode.unavailable);
       expect(output.stderr.join('\n')).toContain('not implemented');
       expect(output.stderr.join('\n')).toContain('No external action was taken');
     },

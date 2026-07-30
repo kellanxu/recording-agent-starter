@@ -2,8 +2,8 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 Stage 0 脚手架已建立，但产品命令尚未实现，也尚未发布。
-> 不要把本仓库当作已经可安装的产品。
+> 当前状态：Phase 3 Stage 1 已实现安全初始化与离线诊断；`sample` 和真实事件 Loop
+> 尚未实现，也尚未发布。不要把本仓库当作已经可安装的产品。
 
 ## 计划完成的 Loop
 
@@ -29,8 +29,21 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-以上是 V1 命令契约。当前只有 help 与稳定退出码；产品命令会明确返回 unavailable，
-不代表已经实现。
+当前已实现 `init` 与 `doctor`。初始化默认逐项询问 Starter workspace、录音来源、
+分类体系、Markdown 入库位置和沉淀规则；也可显式传入参数：
+
+```bash
+recording-agent init \
+  --workspace /absolute/path/to/starter-workspace \
+  --source "本人飞书妙记" \
+  --categories "工作,学习" \
+  --library /absolute/path/to/markdown-library \
+  --retention "保留原始证据、结论和人工意见"
+
+recording-agent doctor --workspace /absolute/path/to/starter-workspace
+```
+
+其余产品命令会明确返回 unavailable，不代表已经实现。
 
 ## V1 边界
 
