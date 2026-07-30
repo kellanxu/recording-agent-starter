@@ -2,8 +2,9 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 已通过隔离 workspace 的完整真实录音 E2E，并完成本地活动材料；
-> 但尚未完成独立发布门，也尚未发布 `v0.1.0`。不要把本仓库当作已经可安装的正式产品。
+> 当前版本：`v0.1.0`。维护者已通过隔离 workspace 的完整真实录音 E2E、依赖与隐私
+> 门、ZIP 隔离安装和活动材料验收。安装时仍须校验 Release 的 ZIP 与 SHA-256，并在
+> 自己的环境运行 `doctor --live`，不能把维护者验收替代为使用者验收。
 
 ## 计划完成的 Loop
 
@@ -102,7 +103,9 @@ LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
 - [Windows beta 教程](docs/WINDOWS_BETA.md)
 - [故障恢复](docs/TROUBLESHOOTING.md)
 - [原创流程图](docs/FLOW.md)
+- [公开安全样本截图](docs/SCREENSHOTS.md)
 - [依赖许可证审计](DEPENDENCY_LICENSES.md)
+- [v0.1.0 发布决策](RELEASE_DECISION.md)
 - [本地活动材料](workshop/README.md)
 
 ## License

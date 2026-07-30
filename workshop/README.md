@@ -10,6 +10,7 @@
 - `STUDENT_HANDBOOK.md`：学员手册。
 - `PRE_CLASS_CHECKLIST.md`：课前检查。
 - `INSTRUCTOR_CHECKLIST.md`：讲师清单。
+- `FEISHU_INDEX.md`：飞书同步使用的本地 Markdown 真源索引。
 - `QA.md`：离线构建、浏览器和 PDF 视觉验收记录。
 
 ## 构建

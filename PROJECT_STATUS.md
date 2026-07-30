@@ -4,14 +4,15 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage8-local-complete-public-gates-pending`
+`phase3-v0.1.0-release-candidate-preparing`
 
-Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的预发布材料已准备。隔离 workspace 的
+Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的发布源已准备。隔离 workspace 的
 live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
 唯一主记录、唯一本人确认单、服务重启与事件重放均已通过。三条独立真实回复的
 message ID 幂等、同一记录回写、分类移动和最终确认也已通过。Stage 8 本地活动材料
-已完成并通过离线视觉与浏览器验收；`v0.1.0`、公开仓库、Release、飞书同步与公开权限
-仍保持关闭。
+已完成并通过离线视觉与浏览器验收。根项目与 Slidev 开发依赖漏洞均已归零，公开安全
+截图已完成；`v0.1.0` 的最终同 commit 制品、公开仓库、Release、飞书同步与公开权限
+仍保持关闭，等待最后发布矩阵。
 
 ## Confirmed decisions
 
@@ -56,7 +57,8 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - 8 个测试文件、46 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
 - 候选 ZIP 已校验、解压、隔离安装并成功生成唯一离线样本。
 - 第一次 ZIP 验证因错误 cwd 失败、第二次从解压目录成功，均记录在 `E2E_EVIDENCE.md`。
-- 182 个锁定依赖条目的许可证均在已审查集合内；正式包仍为零生产依赖。
+- 根项目与工作坊共 987 个锁定依赖条目的许可证均在已审查集合内；两个 lockfile
+  缺失字段只按精确包名、版本和随包 MIT LICENSE 证据放行；正式包仍为零生产依赖。
 - 候选 ZIP 的 136 个内部路径/文本条目通过路径穿越、私密路径、ID、凭证、妙记 URL
   与录音文件扫描；相邻 SHA-256 复核通过。
 - CLI help、README、macOS 与 Windows beta 教程已按当前实现逐项核对。
@@ -79,29 +81,32 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
   状态恢复和同 token no-op 已满足该门，不把完整 logout/login 另立为发布门。
 - Stage 8 已完成 16 页 Slidev、本地主讲义、学员手册、课前检查和讲师清单；没有制作
   PPT，也没有使用伪造产品界面。
+- 三张原创产品截图来自构建后的 `v0.1.0` CLI 与 bundled public fixture；临时机器路径
+  已替换为占位符，视觉检查无裁切、遮挡或动态私密数据。
 - Slidev 静态构建在阻断全部外网请求时完成 `/1` 到 `/16` 键盘翻页，演讲者模式加载
   speaker notes 与 Sources；外部请求和本地资源失败均为零。
 - 16 页 PDF 兜底已导出并逐页检查，无裁切、重叠、中文缺字或破损代码块。
 - 首轮 Stage 8 验收发现并修复默认 Google Fonts 外链和相对 base 导致 presenter
   资源 404 两个问题；完整去敏 QA 记录在 `workshop/QA.md`。
 
-## Known pre-release risk
+## Resolved release risks
 
-- 完整 dev audit 仍有 5 个来自 ESLint 9 glob 依赖链的 high 告警；生产依赖审计为 0。
-- npm 建议升级 ESLint 10，但其 Node 下限 `20.19` 高于当前项目契约 `>=20.12`。
-- 未使用 `--force` 或不安全 override；`v0.1.0` 前必须解决或由人明确调整兼容契约。
+- ESLint 已升级为 `10.8.0`，`typescript-eslint` peer 范围明确支持 ESLint 10。
+- ESLint 的开发 Node 下限由 `devEngines` 单独执行，不改变正式 CLI `>=20.12` 的运行契约。
+- Slidev 的 DOMPurify 链通过精确 `3.4.12` override 修复；根项目、生产依赖和工作坊
+  `npm audit` 均为 0。
+- 未使用 `--force`、忽略 peer dependency 或宽泛不安全 override。
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
 ## Not yet achieved
 
-- 原创产品截图。
-- ESLint 9 开发依赖审计风险的解决或明确人工兼容决策。
 - 来自同一 release commit 的 `v0.1.0` tag、ZIP 与 SHA-256。
 - GitHub 公开仓库与 Release。
 - 飞书公开文档同步、具体权限确认与未登录验收。
 
 ## Next action
 
-解决或明确接受发布前开发依赖审计风险，并完成 Stage 7 的原创产品截图与同 commit
-发布物。飞书同步、公开权限和公开 GitHub Release 仍须各自门禁，不自动执行。
+提交最终 release source，随后只从干净 HEAD 重跑测试、类型检查、lint、format、
+privacy、license、build、Slidev HTML/PDF、隔离 ZIP 安装与 archive audit。全部通过后
+才能创建公开 GitHub Release；飞书同步随后执行，公开权限仍须展示具体文档后再次确认。

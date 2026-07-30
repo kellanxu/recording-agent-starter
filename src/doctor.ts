@@ -165,7 +165,7 @@ function liveDiagnostics(
       status.identities?.user?.status === 'ready' &&
       status.identities.user.tokenStatus === 'valid';
   } catch {
-    larkReady = false;
+    // Malformed output keeps the default not-ready state.
   }
   try {
     const status = JSON.parse(bridgeLark.stdout) as {
@@ -177,7 +177,7 @@ function liveDiagnostics(
       status.verified === true &&
       status.identities?.bot?.status === 'ready';
   } catch {
-    bridgeBotReady = false;
+    // Malformed output keeps the default not-ready state.
   }
   const bridgeProfileFound =
     bridge.status === 0 &&

@@ -1,19 +1,16 @@
 # Dependency License Audit
 
-Audited from the locked dependency graph on 2026-07-30.
+Audited from both locked dependency graphs on 2026-07-30.
 
-| SPDX license  | Locked package entries |
-| ------------- | ---------------------: |
-| 0BSD          |                      1 |
-| Apache-2.0    |                     16 |
-| BSD-2-Clause  |                      6 |
-| BSD-3-Clause  |                      2 |
-| BlueOak-1.0.0 |                      1 |
-| ISC           |                      8 |
-| MIT           |                    135 |
-| MPL-2.0       |                     12 |
-| Python-2.0    |                      1 |
-| **Total**     |                **182** |
+| Lockfile                     | Locked package entries |
+| ---------------------------- | ---------------------: |
+| `package-lock.json`          |                    162 |
+| `workshop/package-lock.json` |                    825 |
+| **Total**                    |                **987** |
+
+The combined graph uses reviewed permissive, weak-copyleft or dual-license identifiers:
+MIT-family expressions, Apache-2.0, BSD variants, ISC, MPL-2.0, Python-2.0, CC0-1.0,
+CC-BY-4.0, Unlicense and BlueOak-1.0.0.
 
 Run:
 
@@ -21,5 +18,9 @@ Run:
 npm run license:audit
 ```
 
-The audit reads `package-lock.json` and fails on missing or unreviewed licenses. This is a
-development dependency audit; the packaged Starter currently has zero production dependencies.
+The audit fails on a missing or unreviewed license. `khroma@2.1.0` and `zigpty@0.2.1` omit
+`license` metadata from their lock entries, while their installed package distributions include
+MIT LICENSE files. The script accepts only those exact name/version pairs as reviewed metadata
+exceptions; any upgrade must be re-reviewed.
+
+This is a development dependency audit. The packaged Starter has zero production dependencies.

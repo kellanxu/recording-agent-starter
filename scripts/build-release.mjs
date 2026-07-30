@@ -9,8 +9,19 @@ const releaseDirectory = resolve('release');
 mkdirSync(releaseDirectory, { recursive: true });
 const buildDirectory = mkdtempSync(join(releaseDirectory, '.candidate-'));
 const packageJson = JSON.parse(readFileSync(resolve('package.json'), 'utf8'));
-const archiveName = `${packageJson.name}-${packageJson.version}-dev.zip`;
+const finalRelease = process.argv.includes('--final');
+const archiveName = `${packageJson.name}-${packageJson.version}${finalRelease ? '' : '-dev'}.zip`;
 const archivePath = join(releaseDirectory, archiveName);
+const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+
+if (finalRelease) {
+  const worktreeStatus = execFileSync('git', ['status', '--porcelain'], {
+    encoding: 'utf8',
+  }).trim();
+  if (worktreeStatus !== '') {
+    throw new Error('final release requires a clean worktree');
+  }
+}
 
 try {
   const packResult = JSON.parse(
@@ -24,6 +35,19 @@ try {
   execFileSync('tar', ['-xzf', tarballPath, '-C', buildDirectory]);
   const packageDirectory = join(buildDirectory, 'recording-agent-starter');
   renameSync(join(buildDirectory, 'package'), packageDirectory);
+  writeFileSync(
+    join(packageDirectory, 'RELEASE_MANIFEST.json'),
+    `${JSON.stringify(
+      {
+        name: packageJson.name,
+        version: packageJson.version,
+        commit,
+      },
+      null,
+      2,
+    )}\n`,
+    'utf8',
+  );
   rmSync(archivePath, { force: true });
   execFileSync('zip', ['-q', '-r', archivePath, 'recording-agent-starter'], {
     cwd: buildDirectory,
@@ -36,7 +60,8 @@ try {
       archive: archivePath,
       sha256File: `${archivePath}.sha256`,
       version: packageJson.version,
-      release: false,
+      commit,
+      release: finalRelease,
     }),
   );
 } finally {

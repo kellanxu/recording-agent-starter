@@ -10,8 +10,8 @@ Updated: 2026-07-30
 - Node.js contract: `>=20.12`
 
 The workshop has no production dependency. `npm audit --omit=dev` reported zero vulnerabilities.
-The complete workshop development tree currently reports six moderate advisories; no `--force`,
-override or unsafe automatic fix was used.
+The complete workshop development tree also reports zero vulnerabilities after pinning
+DOMPurify `3.4.12` through an exact override. No `--force` or broad unsafe override was used.
 
 ## Build results
 
@@ -67,6 +67,6 @@ not affect navigation, rendering or presenter mode.
 
 - No PPT was created.
 - No private configuration, recording, Transcript, token, ID or Feishu URL entered the materials.
-- No GitHub Release was created.
-- No Feishu document was synchronized.
+- GitHub Release and Feishu synchronization remain external publication steps and are not treated
+  as local rendering evidence.
 - No Feishu public permission was changed.

@@ -1,7 +1,7 @@
 # macOS 安装教程
 
-> 当前是发布前教程。维护者的隔离真实 E2E 已通过，但独立发布门尚未完成，暂时没有
-> `v0.1.0` Release。只使用项目维护者提供的候选 ZIP，不要把候选包当正式发布。
+> 本教程对应 `v0.1.0`。只从项目的 GitHub Release 下载 ZIP 与同名 SHA-256，
+> 校验通过后再安装；不要使用聊天附件、网盘转存或来源不明的副本。
 
 ## 1. 检查前置条件
 
@@ -20,8 +20,8 @@ Markdown 库；不要共享密钥或机器人。
 ## 2. 校验并解压 ZIP
 
 ```bash
-shasum -a 256 -c recording-agent-starter-<version>.zip.sha256
-unzip recording-agent-starter-<version>.zip
+shasum -a 256 -c recording-agent-starter-0.1.0.zip.sha256
+unzip recording-agent-starter-0.1.0.zip
 cd recording-agent-starter
 ```
 

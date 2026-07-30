@@ -1,29 +1,33 @@
 # Compatibility Baseline
 
-Observed on 2026-07-30 before Stage 0 implementation:
+Observed and revalidated on 2026-07-30:
 
-| Component             | Project contract        | Observed version         | Stage 0 status                                |
-| --------------------- | ----------------------- | ------------------------ | --------------------------------------------- |
-| macOS                 | V1 supported host       | Current development host | Baseline only                                 |
-| Node.js               | `>=20.12`               | `v22.22.3`               | Compatible                                    |
-| npm                   | Bundled with Node       | `10.9.8`                 | Compatible                                    |
-| Codex CLI             | Installed and logged in | `0.144.1`                | Version detected; login not exercised         |
-| `lark-channel-bridge` | PersonalAgent profile   | `0.5.8`                  | Version detected; profile not exercised       |
-| `lark-cli`            | Local Feishu CLI        | `1.0.68`                 | Version detected; authorization not exercised |
+| Component             | Project contract                   | Observed version         | v0.1.0 status                          |
+| --------------------- | ---------------------------------- | ------------------------ | -------------------------------------- |
+| macOS                 | V1 supported host                  | Current development host | Isolated real E2E passed               |
+| Node.js runtime       | `>=20.12`                          | `v22.22.3`               | Compatible                             |
+| Node.js development   | `^20.19.0 \|\| ^22.13.0 \|\| >=24` | `v22.22.3`               | Enforced by `devEngines`               |
+| npm                   | Bundled with Node                  | `10.9.8`                 | Compatible                             |
+| Codex CLI             | Installed and logged in            | `0.144.1`                | Real structured run passed             |
+| `lark-channel-bridge` | PersonalAgent profile              | `0.5.8`                  | Existing Bridge reply path passed      |
+| `lark-cli`            | Local Feishu CLI                   | `1.0.68`                 | Real event, Transcript and send passed |
 
-Stage 0 development dependencies are pinned to TypeScript `5.9.3`, ESLint and `@eslint/js`
-`9.39.5`, `typescript-eslint` `8.65.0`, Vitest `4.1.10`, Prettier `3.9.6` and
-`@types/node` `20.19.43`. These versions satisfy the declared Node.js `>=20.12` runtime floor
-and their published peer dependency ranges. TypeScript 7 and ESLint 10 were deliberately not
-used because the observed peer or engine ranges did not satisfy this project contract.
+Development dependencies are exactly pinned to TypeScript `5.9.3`, ESLint `10.8.0`,
+`@eslint/js` `10.0.1`, `typescript-eslint` `8.65.0`, Vitest `4.1.10`, Prettier `3.9.6` and
+`@types/node` `20.19.43`.
 
-This table is compatibility evidence, not an end-to-end success claim. Real authorization, event
-delivery, Transcript retrieval and write-back remain gated until their implementation stages.
+`typescript-eslint` declares peer compatibility with ESLint 10 and TypeScript below 6.1. ESLint 10
+requires Node `^20.19.0 || ^22.13.0 || >=24`; this is a development-only floor enforced through
+`devEngines`. The packaged CLI keeps the documented Node `>=20.12` runtime contract and has zero
+production dependencies.
 
-## Development audit note
+## Dependency audit result
 
-`npm audit --omit=dev` reports zero production vulnerabilities. The full development audit currently
-reports five high-severity findings through ESLint 9's glob dependency chain. npm proposes ESLint 10,
-but that release raises its Node.js floor to `20.19`, above this project's declared `>=20.12`
-contract. The project does not use `--force` or an unsafe transitive override. This must be resolved
-or explicitly re-decided before `v0.1.0`; the packaged Starter has zero production dependencies.
+- `npm audit`: zero vulnerabilities.
+- `npm audit --omit=dev`: zero vulnerabilities.
+- `npm audit --prefix workshop`: zero vulnerabilities.
+- Slidev's DOMPurify chain is pinned to reviewed version `3.4.12`.
+- No `--force`, ignored peer dependency or unsafe broad override was used.
+
+The complete release decision and license exception handling are recorded in
+`RELEASE_DECISION.md` and `DEPENDENCY_LICENSES.md`.

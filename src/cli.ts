@@ -22,7 +22,7 @@ import { runRuntime } from './runtime.js';
 import { runSample } from './sample.js';
 import { publicServiceStatus, readServiceState } from './service-state.js';
 
-const VERSION = '0.0.0';
+const VERSION = '0.1.0';
 const COMMANDS = [
   'init',
   'doctor',
@@ -369,8 +369,8 @@ Options:
   -v, --version        Show version
 
 Current milestone:
-  Phase 3 pre-release implementation and offline gates are implemented.
-  Real end-to-end validation has not yet passed.`;
+  v0.1.0 has passed the maintainer's isolated real end-to-end validation.
+  Run doctor --live in your own environment before enabling external writes.`;
 }
 
 export function commandHelpText(command: Command): string {

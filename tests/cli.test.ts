@@ -42,6 +42,8 @@ describe('CLI baseline', () => {
 
     expect(await runCli(['--help'], output.io)).toBe(ExitCode.success);
     expect(output.stdout).toEqual([helpText()]);
+    expect(output.stdout[0]).toContain('Recording Agent Starter 0.1.0');
+    expect(output.stdout[0]).toContain("maintainer's isolated real end-to-end validation");
     expect(output.stderr).toEqual([]);
   });
 

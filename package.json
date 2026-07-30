@@ -1,6 +1,6 @@
 {
   "name": "recording-agent-starter",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "A local-first starter that turns Feishu recordings into auditable Markdown records.",
   "type": "module",
@@ -19,6 +19,8 @@
     "EVENT_CONTRACT.md",
     "IM_CONTRACT.md",
     "LIFECYCLE.md",
+    "RELEASE_DECISION.md",
+    "RELEASE_NOTES.md",
     "README.md",
     "LICENSE"
   ],
@@ -32,6 +34,9 @@
     "lint": "eslint .",
     "privacy:scan": "node scripts/privacy-scan.mjs",
     "release:candidate": "npm run check && npm run build && node scripts/build-release.mjs",
+    "release:build": "npm run check && npm run build && node scripts/build-release.mjs --final",
+    "release:verify": "node scripts/verify-release.mjs release/recording-agent-starter-0.1.0.zip",
+    "screenshots": "npm run build && node workshop/scripts/capture-public-screenshots.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -39,10 +44,17 @@
   "engines": {
     "node": ">=20.12"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^20.19.0 || ^22.13.0 || >=24",
+      "onFail": "error"
+    }
+  },
   "devDependencies": {
-    "@eslint/js": "9.39.5",
+    "@eslint/js": "10.0.1",
     "@types/node": "20.19.43",
-    "eslint": "9.39.5",
+    "eslint": "10.8.0",
     "prettier": "3.9.6",
     "typescript": "5.9.3",
     "typescript-eslint": "8.65.0",
