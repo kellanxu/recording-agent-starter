@@ -33,15 +33,4 @@ describe('CLI baseline', () => {
     expect(output.stdout).toEqual([]);
     expect(output.stderr.join('\n')).toContain('Unknown command');
   });
-
-  it.each(['start', 'status', 'stop'])(
-    'does not pretend that %s is implemented',
-    async (command) => {
-      const output = capture();
-
-      expect(await runCli([command], output.io)).toBe(ExitCode.unavailable);
-      expect(output.stderr.join('\n')).toContain('not implemented');
-      expect(output.stderr.join('\n')).toContain('No external action was taken');
-    },
-  );
 });

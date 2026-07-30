@@ -4,11 +4,11 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage4-complete`
+`phase3-stage5-implementation-complete`
 
-Phase 3 Stage 4 已实现经当前 CLI schema 核验的纯文本确认单、一次通知预留、三种确认
-命令、同一记录更新、分类移动与审计。所有消息写入和回复消费仍只通过 mock 验证，尚未
-向真实 chat 发送，因此不构成真实 E2E。
+Phase 3 Stage 5 已实现 `start/status/stop`、前台 runtime、macOS LaunchAgent 生成与
+优雅停止。实现和 mock 验证已完成，但尚未真实安装 LaunchAgent、启动飞书消费者或验证
+机器重启，因此 Stage 5 的真实运行验收仍属于 Stage 6 E2E。
 
 ## Confirmed decisions
 
@@ -43,6 +43,11 @@ Phase 3 Stage 4 已实现经当前 CLI schema 核验的纯文本确认单、一�
 - 改分类使用文件移动并更新同一注册表项，不复制第二份正文。
 - 无效 ID、未知分类、无效格式和非唯一对象统一停止为 `needs_clarification`。
 - IM flat NDJSON schema、发送身份与外部写门记录在 `IM_CONTRACT.md`。
+- macOS plist 使用 `RunAtLoad`、`KeepAlive` 和 workspace-local 日志。
+- Windows beta 只支持 `--foreground`，以 Ctrl+C 或已验证 PID 的 SIGTERM 停止。
+- `status` 只输出生命周期、消费者 readiness 与聚合计数，不输出 token、Transcript、
+  chat/user ID 或凭证。
+- 停止只关闭消费者并保留控制状态、重试队列、记录注册表与失败状态。
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
@@ -50,11 +55,12 @@ Phase 3 Stage 4 已实现经当前 CLI schema 核验的纯文本确认单、一�
 
 - 真实飞书事件、Transcript 与 Codex Runner E2E。
 - 真实飞书确认消息与回复命令 E2E。
+- 真实 macOS LaunchAgent 安装、进程重启与机器重启恢复。
 - 单元测试、集成测试与真实 E2E。
 - ZIP、SHA-256、GitHub 仓库与 Release。
 - 主讲义、演示 HTML 和飞书公开文档。
 
 ## Next action
 
-按 `PHASE3_TASKS.md` 进入 Stage 5；实现前台 runtime、macOS launchd 安装模板、
-`start/status/stop`、优雅停止与重启恢复。真实后台安装必须由用户显式执行。
+按 `PHASE3_TASKS.md` 进入 Stage 6；补全单元与 mock 集成矩阵，生成候选 ZIP 并做
+隔离安装。真实授权、真实妙记、真实消息和后台安装仍按外部操作门单独执行。

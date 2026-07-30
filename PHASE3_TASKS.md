@@ -57,11 +57,11 @@
 
 ## Stage 5：运行生命周期
 
-- [ ] 实现 `start`、`status`、`stop`。
-- [ ] macOS 使用 `launchd`，支持重启恢复。
-- [ ] Windows beta 提供前台运行和明确停止方式。
-- [ ] 状态输出不泄漏 Transcript 或凭证。
-- [ ] 停止后无孤儿进程，队列与失败状态保留。
+- [x] 实现 `start`、`status`、`stop`。
+- [x] macOS 使用 `launchd`，支持重启恢复。
+- [x] Windows beta 提供前台运行和明确停止方式。
+- [x] 状态输出不泄漏 Transcript 或凭证。
+- [x] 停止后无孤儿进程，队列与失败状态保留。
 
 验收：macOS 重启后可恢复；Windows 未真实 E2E 前不写正式支持。
 

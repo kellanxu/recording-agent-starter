@@ -2,7 +2,8 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 Stage 4 已实现离线样本、事件控制面和确认回路，但尚未通过真实录音 E2E，
+> 当前状态：Phase 3 Stage 5 已实现离线样本、控制面、确认回路和运行生命周期，
+> 但尚未通过真实录音 E2E，
 > 也尚未发布。不要把本仓库当作已经可安装的产品。
 
 ## 计划完成的 Loop
@@ -48,13 +49,19 @@ recording-agent catch-up \
   --workspace /absolute/path/to/starter-workspace \
   --days 1 \
   --confirm-external-writes
+
+recording-agent start \
+  --workspace /absolute/path/to/starter-workspace \
+  --confirm-external-writes
+recording-agent status --workspace /absolute/path/to/starter-workspace
+recording-agent stop --workspace /absolute/path/to/starter-workspace
 ```
 
 `sample` 只处理仓库自带的安全 fixture，输出会明确声明不是真实飞书或 Codex E2E。
 重复执行不会创建第二份 `R-0001`。`catch-up` 只有在使用者已完成 user 授权后才会
 读取妙记；新主记录会向配置目标发送一份确认单，因此必须显式追加
-`--confirm-external-writes`。它不修改妙记本身。`start`、`status` 与 `stop`
-仍会明确返回 unavailable。
+`--confirm-external-writes`。它不修改妙记本身。macOS 的 `start` 安装用户级
+LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
 
 ## V1 边界
 
@@ -72,6 +79,7 @@ recording-agent catch-up \
 - [Phase 3 开发任务](PHASE3_TASKS.md)
 - [飞书事件契约](EVENT_CONTRACT.md)
 - [飞书确认契约](IM_CONTRACT.md)
+- [运行生命周期](LIFECYCLE.md)
 
 ## License
 

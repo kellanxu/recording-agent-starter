@@ -2,16 +2,22 @@
 
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
 
 import { CodexCliRunner } from './codex-cli-runner.js';
 import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane } from './control-plane.js';
+import { readMachineConfig } from './config.js';
 import { diagnose, highestDiagnosticLevel } from './doctor.js';
 import { ExitCode, type ExitCode as ExitCodeValue } from './exit-codes.js';
+import { stopVerifiedForegroundProcess } from './foreground-process.js';
 import { initializeWorkspace, parseCategories } from './init.js';
+import { installAndStartLaunchAgent, launchAgentLoaded, stopLaunchAgent } from './launchd.js';
 import { LarkCliMinutesClient } from './lark-minutes-client.js';
 import { LiveTranscriptProcessor } from './live-processor.js';
+import { runRuntime } from './runtime.js';
 import { runSample } from './sample.js';
+import { publicServiceStatus, readServiceState } from './service-state.js';
 
 const VERSION = '0.0.0';
 const COMMANDS = ['init', 'doctor', 'sample', 'start', 'status', 'stop', 'catch-up'] as const;
@@ -196,6 +202,90 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
   }
 }
 
+async function runStart(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const config = await readMachineConfig(workspaceRoot);
+    if (config.confirmationTarget === undefined) {
+      throw new Error('confirmation target is not configured');
+    }
+    io.stdout(
+      `External write target: ${config.confirmationTarget.kind} ${config.confirmationTarget.id}`,
+    );
+    io.stdout(`Sending identity: ${config.confirmationTarget.identity}`);
+    io.stdout('Message content: one transcript-free confirmation sheet per new pending record.');
+    if (!args.includes('--confirm-external-writes')) {
+      io.stderr(
+        'Start stopped before external changes. Add --confirm-external-writes to continue.',
+      );
+      return ExitCode.usage;
+    }
+
+    const foreground = args.includes('--foreground');
+    if (foreground) {
+      io.stdout('Starting in the foreground. Stop with Ctrl+C or recording-agent stop.');
+      await runRuntime(workspaceRoot);
+      return ExitCode.success;
+    }
+    if (process.platform !== 'darwin') {
+      io.stderr('This platform is beta and supports only start --foreground.');
+      return ExitCode.unavailable;
+    }
+
+    const runtimeEntry = fileURLToPath(new URL('./runtime.js', import.meta.url));
+    const result = await installAndStartLaunchAgent(workspaceRoot, process.execPath, runtimeEntry);
+    io.stdout(
+      `${result.restarted ? 'Restarted' : 'Started'} macOS launchd service: ${result.label}`,
+    );
+    io.stdout(`LaunchAgent: ${result.plistPath}`);
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown start error';
+    io.stderr(`Start failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
+async function runStatus(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const state = await readServiceState(workspaceRoot);
+    const status = publicServiceStatus(state);
+    if (process.platform === 'darwin') {
+      status.launchdLoaded = await launchAgentLoaded(workspaceRoot);
+    } else {
+      status.support = 'beta-foreground-only';
+    }
+    io.stdout(JSON.stringify(status, null, 2));
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown status error';
+    io.stderr(`Status failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
+async function runStop(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    if (process.platform === 'darwin' && (await stopLaunchAgent(workspaceRoot))) {
+      io.stdout('Stopped macOS launchd service. Queue and failure state were preserved.');
+      return ExitCode.success;
+    }
+    const state = await readServiceState(workspaceRoot);
+    if (state !== undefined && (await stopVerifiedForegroundProcess(state.pid, workspaceRoot))) {
+      io.stdout('Sent SIGTERM to the verified foreground runtime. State was preserved.');
+      return ExitCode.success;
+    }
+    io.stdout('No running service was found. State was left unchanged.');
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown stop error';
+    io.stderr(`Stop failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
 export function helpText(): string {
   return `Recording Agent Starter ${VERSION}
 
@@ -216,8 +306,8 @@ Options:
   -v, --version        Show version
 
 Current milestone:
-  Stage 3 event control plane and catch-up are implemented.
-  start, status and stop remain intentionally unavailable.`;
+  Stage 5 lifecycle commands are implemented.
+  Real end-to-end validation has not yet passed.`;
 }
 
 export async function runCli(
@@ -246,11 +336,12 @@ export async function runCli(
   if (first === 'doctor') return runDoctor(args.slice(1), io);
   if (first === 'sample') return executeSample(args.slice(1), io);
   if (first === 'catch-up') return runCatchUp(args.slice(1), io);
+  if (first === 'start') return runStart(args.slice(1), io);
+  if (first === 'status') return runStatus(args.slice(1), io);
+  if (first === 'stop') return runStop(args.slice(1), io);
 
-  io.stderr(
-    `Command "${first}" is not implemented in the current milestone. No external action was taken.`,
-  );
-  return ExitCode.unavailable;
+  io.stderr('Internal command dispatch error.');
+  return ExitCode.failure;
 }
 
 function isMainModule(): boolean {
