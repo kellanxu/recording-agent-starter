@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 
 import { CodexCliRunner } from './codex-cli-runner.js';
+import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane } from './control-plane.js';
 import { diagnose, highestDiagnosticLevel } from './doctor.js';
 import { ExitCode, type ExitCode as ExitCodeValue } from './exit-codes.js';
@@ -81,6 +82,24 @@ async function runInit(args: readonly string[], io: CliIO): Promise<ExitCodeValu
     const libraryRoot = await answer(args, '--library', 'Markdown 入库位置的绝对路径：', io);
     const retentionRule = await answer(args, '--retention', '哪些内容需要沉淀？', io);
     const bridgeProfile = option(args, '--bridge-profile');
+    const confirmationChatId = option(args, '--confirmation-chat-id');
+    const confirmationUserId = option(args, '--confirmation-user-id');
+    const confirmationIdentity = option(args, '--confirmation-identity') ?? 'bot';
+    if (confirmationChatId !== undefined && confirmationUserId !== undefined) {
+      throw new Error('choose only one confirmation target');
+    }
+    if (confirmationIdentity !== 'bot' && confirmationIdentity !== 'user') {
+      throw new Error('--confirmation-identity must be bot or user');
+    }
+    const safeConfirmationIdentity: 'bot' | 'user' = confirmationIdentity;
+    const confirmationTarget =
+      confirmationChatId === undefined && confirmationUserId === undefined
+        ? undefined
+        : {
+            kind: confirmationChatId === undefined ? ('user' as const) : ('chat' as const),
+            id: confirmationChatId ?? confirmationUserId ?? '',
+            identity: safeConfirmationIdentity,
+          };
 
     const result = await initializeWorkspace({
       workspaceRoot,
@@ -89,6 +108,7 @@ async function runInit(args: readonly string[], io: CliIO): Promise<ExitCodeValu
       libraryRoot,
       retentionRule,
       ...(bridgeProfile === undefined ? {} : { bridgeProfile }),
+      ...(confirmationTarget === undefined ? {} : { confirmationTarget }),
     });
     io.stdout(`Starter workspace created: ${result.config.workspaceRoot}`);
     io.stdout(`Machine config: .recording-agent/config.json`);
@@ -144,8 +164,18 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
     if (daysText === undefined || daysText !== '1') {
       throw new Error('catch-up requires --days 1');
     }
+    if (!args.includes('--confirm-external-writes')) {
+      throw new Error(
+        'catch-up may send confirmation messages; review the configured target and add --confirm-external-writes',
+      );
+    }
     const client = new LarkCliMinutesClient(workspaceRoot);
-    const processor = new LiveTranscriptProcessor(workspaceRoot, new CodexCliRunner(workspaceRoot));
+    const processor = new LiveTranscriptProcessor(
+      workspaceRoot,
+      new CodexCliRunner(workspaceRoot),
+      () => new Date(),
+      await configuredNotifier(workspaceRoot),
+    );
     const controlPlane = new ControlPlane(workspaceRoot, client, processor);
     const results = await controlPlane.catchUp(1, client);
     const counts = results.reduce<Record<string, number>>((summary, result) => {
@@ -153,7 +183,9 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
       return summary;
     }, {});
     io.stdout(`Catch-up result: ${JSON.stringify(counts)}`);
-    io.stdout('Only the requested one-day window was searched; no Feishu content was modified.');
+    io.stdout(
+      'Only the requested one-day window was searched; one confirmation message is sent for each new pending record.',
+    );
     return results.some((result) => result.outcome === 'failed')
       ? ExitCode.failure
       : ExitCode.success;

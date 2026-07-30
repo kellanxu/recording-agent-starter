@@ -14,6 +14,7 @@ export interface InitAnswers {
   libraryRoot: string;
   retentionRule: string;
   bridgeProfile?: string;
+  confirmationTarget?: MachineConfig['confirmationTarget'];
 }
 
 export interface InitResult {
@@ -72,6 +73,9 @@ export async function initializeWorkspace(
     workspaceRoot,
     libraryRoot,
     bridgeProfile: answers.bridgeProfile?.trim() || 'PersonalAgent',
+    ...(answers.confirmationTarget === undefined
+      ? {}
+      : { confirmationTarget: answers.confirmationTarget }),
     createdAt: now.toISOString(),
   };
   await writeMachineConfig(config);

@@ -4,11 +4,11 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage3-complete`
+`phase3-stage4-complete`
 
-Phase 3 Stage 3 已实现经当前 CLI schema 核验的实时事件适配器、Transcript 读取、
-双重去重、单 token 退避、原子状态/锁、每日补漏和 `catch-up --days 1`。所有 live
-入口均已实现但尚未用真实录音执行，因此不构成真实 E2E。
+Phase 3 Stage 4 已实现经当前 CLI schema 核验的纯文本确认单、一次通知预留、三种确认
+命令、同一记录更新、分类移动与审计。所有消息写入和回复消费仍只通过 mock 验证，尚未
+向真实 chat 发送，因此不构成真实 E2E。
 
 ## Confirmed decisions
 
@@ -38,17 +38,23 @@ Phase 3 Stage 3 已实现经当前 CLI schema 核验的实时事件适配器、T
 - Transcript 未就绪时只重试当前 token，指数退避上限为一小时。
 - 控制状态、记录注册表与锁均在 Starter workspace 内原子持久化；重启后继续去重。
 - `catch-up --days 1` 使用 owner/participant 两次只读搜索后按 token 合并。
+- 确认单不含 Transcript、机器路径或凭证；通知发送前先持久化幂等预留。
+- `确认`、`修改`、`分类` 均按 message ID 幂等；修改保留 AI 原输出和用户意见。
+- 改分类使用文件移动并更新同一注册表项，不复制第二份正文。
+- 无效 ID、未知分类、无效格式和非唯一对象统一停止为 `needs_clarification`。
+- IM flat NDJSON schema、发送身份与外部写门记录在 `IM_CONTRACT.md`。
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
 ## Not yet achieved
 
 - 真实飞书事件、Transcript 与 Codex Runner E2E。
+- 真实飞书确认消息与回复命令 E2E。
 - 单元测试、集成测试与真实 E2E。
 - ZIP、SHA-256、GitHub 仓库与 Release。
 - 主讲义、演示 HTML 和飞书公开文档。
 
 ## Next action
 
-按 `PHASE3_TASKS.md` 进入 Stage 4；实现一份待确认通知、三种确认命令、同一记录更新、
-移动分类与完整审计。飞书消息写入继续由真实外部写门禁控制。
+按 `PHASE3_TASKS.md` 进入 Stage 5；实现前台 runtime、macOS launchd 安装模板、
+`start/status/stop`、优雅停止与重启恢复。真实后台安装必须由用户显式执行。

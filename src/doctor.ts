@@ -52,7 +52,8 @@ export async function diagnose(workspaceRoot: string): Promise<Diagnostic[]> {
     const leaksMachineData =
       skill.includes(config.workspaceRoot) ||
       skill.includes(config.libraryRoot) ||
-      skill.includes(config.bridgeProfile);
+      skill.includes(config.bridgeProfile) ||
+      (config.confirmationTarget !== undefined && skill.includes(config.confirmationTarget.id));
     diagnostics.push({
       level: leaksMachineData ? 'red' : 'green',
       name: 'skill',
@@ -65,6 +66,19 @@ export async function diagnose(workspaceRoot: string): Promise<Diagnostic[]> {
   diagnostics.push(commandDiagnostic('codex', 'codex'));
   diagnostics.push(commandDiagnostic('bridge', 'lark-channel-bridge'));
   diagnostics.push(commandDiagnostic('lark-cli', 'lark-cli'));
+  diagnostics.push(
+    config.confirmationTarget === undefined
+      ? {
+          level: 'yellow',
+          name: 'confirmation-target',
+          message: 'not configured; live records cannot send a confirmation sheet',
+        }
+      : {
+          level: 'green',
+          name: 'confirmation-target',
+          message: `${config.confirmationTarget.kind} target configured for ${config.confirmationTarget.identity} identity`,
+        },
+  );
   diagnostics.push({
     level: 'yellow',
     name: 'authorization',

@@ -12,8 +12,14 @@ export interface RecordEntry {
   sourceId: string;
   category: string;
   path: string;
-  status: 'pending_confirmation' | 'confirmed';
+  status: 'pending_confirmation' | 'revision_requested' | 'confirmed';
   createdAt: string;
+  notification?: {
+    status: 'reserved' | 'sent' | 'unknown';
+    idempotencyKey: string;
+    messageId?: string;
+    sentAt?: string;
+  };
 }
 
 interface RecordRegistry {
@@ -85,6 +91,30 @@ export class RecordRepository {
       );
     }
     return entry;
+  }
+
+  async get(recordingId: string): Promise<RecordEntry | undefined> {
+    const registry = await this.readRegistry();
+    return registry.records[recordingId];
+  }
+
+  async list(): Promise<RecordEntry[]> {
+    const registry = await this.readRegistry();
+    return Object.values(registry.records);
+  }
+
+  update(
+    recordingId: string,
+    mutate: (entry: RecordEntry) => void | Promise<void>,
+  ): Promise<RecordEntry> {
+    return withFileLock(this.lockPath, async () => {
+      const registry = await this.readRegistry();
+      const entry = registry.records[recordingId];
+      if (entry === undefined) throw new Error('recording_id_not_found');
+      await mutate(entry);
+      await writeFileAtomic(this.registryPath, `${JSON.stringify(registry, null, 2)}\n`);
+      return entry;
+    });
   }
 
   private async readRegistry(): Promise<RecordRegistry> {

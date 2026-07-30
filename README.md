@@ -2,7 +2,7 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 Stage 3 已实现离线样本和事件控制面，但尚未通过真实录音 E2E，
+> 当前状态：Phase 3 Stage 4 已实现离线样本、事件控制面和确认回路，但尚未通过真实录音 E2E，
 > 也尚未发布。不要把本仓库当作已经可安装的产品。
 
 ## 计划完成的 Loop
@@ -38,16 +38,22 @@ recording-agent init \
   --source "本人飞书妙记" \
   --categories "工作,学习" \
   --library /absolute/path/to/markdown-library \
-  --retention "保留原始证据、结论和人工意见"
+  --retention "保留原始证据、结论和人工意见" \
+  --confirmation-chat-id "<target-chat-id>" \
+  --confirmation-identity bot
 
 recording-agent doctor --workspace /absolute/path/to/starter-workspace
 recording-agent sample --workspace /absolute/path/to/starter-workspace
-recording-agent catch-up --workspace /absolute/path/to/starter-workspace --days 1
+recording-agent catch-up \
+  --workspace /absolute/path/to/starter-workspace \
+  --days 1 \
+  --confirm-external-writes
 ```
 
 `sample` 只处理仓库自带的安全 fixture，输出会明确声明不是真实飞书或 Codex E2E。
-重复执行不会创建第二份 `R-0001`。`catch-up` 是真实的只读飞书入口，只有在使用者
-已完成 user 授权后才会工作；它不修改飞书内容。`start`、`status` 与 `stop`
+重复执行不会创建第二份 `R-0001`。`catch-up` 只有在使用者已完成 user 授权后才会
+读取妙记；新主记录会向配置目标发送一份确认单，因此必须显式追加
+`--confirm-external-writes`。它不修改妙记本身。`start`、`status` 与 `stop`
 仍会明确返回 unavailable。
 
 ## V1 边界
@@ -65,6 +71,7 @@ recording-agent catch-up --workspace /absolute/path/to/starter-workspace --days 
 - [当前状态](PROJECT_STATUS.md)
 - [Phase 3 开发任务](PHASE3_TASKS.md)
 - [飞书事件契约](EVENT_CONTRACT.md)
+- [飞书确认契约](IM_CONTRACT.md)
 
 ## License
 

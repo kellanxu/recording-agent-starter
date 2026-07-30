@@ -1,4 +1,5 @@
 import type { CodexRunner, CodexRunnerInput } from './codex-runner.js';
+import { sendPendingConfirmation, type ConfirmationNotifier } from './confirmation-notifier.js';
 import { readSemanticRules } from './semantic-rules.js';
 import { RecordRepository } from './record-repository.js';
 import type { TranscriptProcessor, TranscriptResult } from './control-plane.js';
@@ -11,6 +12,7 @@ export class LiveTranscriptProcessor implements TranscriptProcessor {
     private readonly workspaceRoot: string,
     private readonly runner: CodexRunner,
     private readonly now: () => Date = () => new Date(),
+    private readonly notifier?: ConfirmationNotifier,
   ) {
     this.repository = new RecordRepository(workspaceRoot);
   }
@@ -31,6 +33,9 @@ export class LiveTranscriptProcessor implements TranscriptProcessor {
     };
     const output = await this.runner.run(input);
     const entry = await this.repository.create(input, output, this.now().toISOString());
+    if (this.notifier !== undefined) {
+      await sendPendingConfirmation(this.repository, entry.recordingId, this.notifier, this.now);
+    }
     return entry.recordingId;
   }
 }

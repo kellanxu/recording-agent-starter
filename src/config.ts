@@ -12,6 +12,11 @@ export interface MachineConfig {
   workspaceRoot: string;
   libraryRoot: string;
   bridgeProfile: string;
+  confirmationTarget?: {
+    kind: 'chat' | 'user';
+    id: string;
+    identity: 'bot' | 'user';
+  };
   createdAt: string;
 }
 
@@ -46,11 +51,36 @@ export function validateMachineConfig(value: unknown): MachineConfig {
     throw new Error('machine config has missing or invalid fields');
   }
 
+  const confirmationTarget = validateConfirmationTarget(candidate.confirmationTarget);
   return {
     schemaVersion: 1,
     workspaceRoot: validateSafeDirectory(candidate.workspaceRoot, 'workspace'),
     libraryRoot: validateSafeDirectory(candidate.libraryRoot, 'library'),
     bridgeProfile: candidate.bridgeProfile,
+    ...(confirmationTarget === undefined ? {} : { confirmationTarget }),
     createdAt: candidate.createdAt,
+  };
+}
+
+function validateConfirmationTarget(
+  value: unknown,
+): MachineConfig['confirmationTarget'] | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'object' || value === null) {
+    throw new Error('confirmation target must be an object');
+  }
+  const candidate = value as Record<string, unknown>;
+  if (
+    (candidate.kind !== 'chat' && candidate.kind !== 'user') ||
+    typeof candidate.id !== 'string' ||
+    candidate.id.trim() === '' ||
+    (candidate.identity !== 'bot' && candidate.identity !== 'user')
+  ) {
+    throw new Error('confirmation target has missing or invalid fields');
+  }
+  return {
+    kind: candidate.kind,
+    id: candidate.id,
+    identity: candidate.identity,
   };
 }
