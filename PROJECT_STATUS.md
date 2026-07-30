@@ -4,13 +4,14 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage8-local-materials-in-progress`
+`phase3-stage8-local-complete-public-gates-pending`
 
 Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的预发布材料已准备。隔离 workspace 的
 live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
 唯一主记录、唯一本人确认单、服务重启与事件重放均已通过。三条独立真实回复的
 message ID 幂等、同一记录回写、分类移动和最终确认也已通过。Stage 8 本地活动材料
-已获准开始；`v0.1.0`、公开仓库、Release 与飞书公开权限仍保持关闭。
+已完成并通过离线视觉与浏览器验收；`v0.1.0`、公开仓库、Release、飞书同步与公开权限
+仍保持关闭。
 
 ## Confirmed decisions
 
@@ -76,6 +77,13 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
   processor 均未调用，事件、记录、Markdown 和通知计数均未增加。
 - 项目完成门要求的是服务重启后状态保留与事件重放去重。LaunchAgent 新 PID、ready、
   状态恢复和同 token no-op 已满足该门，不把完整 logout/login 另立为发布门。
+- Stage 8 已完成 16 页 Slidev、本地主讲义、学员手册、课前检查和讲师清单；没有制作
+  PPT，也没有使用伪造产品界面。
+- Slidev 静态构建在阻断全部外网请求时完成 `/1` 到 `/16` 键盘翻页，演讲者模式加载
+  speaker notes 与 Sources；外部请求和本地资源失败均为零。
+- 16 页 PDF 兜底已导出并逐页检查，无裁切、重叠、中文缺字或破损代码块。
+- 首轮 Stage 8 验收发现并修复默认 Google Fonts 外链和相对 base 导致 presenter
+  资源 404 两个问题；完整去敏 QA 记录在 `workshop/QA.md`。
 
 ## Known pre-release risk
 
@@ -87,7 +95,7 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 
 ## Not yet achieved
 
-- 原创截图与 Stage 8 本地活动材料。
+- 原创产品截图。
 - ESLint 9 开发依赖审计风险的解决或明确人工兼容决策。
 - 来自同一 release commit 的 `v0.1.0` tag、ZIP 与 SHA-256。
 - GitHub 公开仓库与 Release。
@@ -95,5 +103,5 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 
 ## Next action
 
-制作并验证 Stage 8 的本地 Slidev HTML、主讲义、学员手册、课前检查和讲师清单。
-不制作 PPT，不同步飞书，不修改公开权限，也不创建公开 GitHub Release。
+解决或明确接受发布前开发依赖审计风险，并完成 Stage 7 的原创产品截图与同 commit
+发布物。飞书同步、公开权限和公开 GitHub Release 仍须各自门禁，不自动执行。

@@ -3,5 +3,6 @@ dist/
 node_modules/
 release/
 AGENTS.md
+workshop/slides.md
 *.zip
 *.sha256

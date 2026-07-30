@@ -2,9 +2,8 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 已实现离线样本、控制面、Bridge 回复入口和运行生命周期，
-> 但尚未通过完整真实录音 E2E，
-> 也尚未发布。不要把本仓库当作已经可安装的产品。
+> 当前状态：Phase 3 已通过隔离 workspace 的完整真实录音 E2E，并完成本地活动材料；
+> 但尚未完成独立发布门，也尚未发布 `v0.1.0`。不要把本仓库当作已经可安装的正式产品。
 
 ## 计划完成的 Loop
 
@@ -32,8 +31,9 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-以上命令均已实现，但真实飞书 E2E 尚未通过。初始化默认逐项询问 Starter workspace、
-录音来源、分类体系、Markdown 入库位置和沉淀规则；也可显式传入参数：
+以上命令均已实现，并已在隔离 workspace 通过真实飞书 E2E。初始化默认逐项询问
+Starter workspace、录音来源、分类体系、Markdown 入库位置和沉淀规则；也可显式传入
+参数：
 
 ```bash
 recording-agent init \
@@ -103,6 +103,7 @@ LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
 - [故障恢复](docs/TROUBLESHOOTING.md)
 - [原创流程图](docs/FLOW.md)
 - [依赖许可证审计](DEPENDENCY_LICENSES.md)
+- [本地活动材料](workshop/README.md)
 
 ## License
 

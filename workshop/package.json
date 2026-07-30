@@ -1,0 +1,16 @@
+{
+  "name": "recording-agent-starter-workshop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev slides.md --open",
+    "build": "slidev build slides.md --base / --out ../release/workshop-html",
+    "export:pdf": "slidev export slides.md --output ../output/pdf/recording-agent-starter-workshop.pdf"
+  },
+  "devDependencies": {
+    "@slidev/cli": "52.18.0",
+    "@slidev/theme-default": "0.25.0",
+    "playwright-chromium": "1.62.0"
+  }
+}
