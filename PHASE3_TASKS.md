@@ -86,8 +86,8 @@
 - [x] 生成原创截图和流程图。
 - [x] 运行 dependency license audit。
 - [x] 运行 secret、私人路径、ID、Transcript 和妙记 URL 扫描。
-- [ ] 从同一 commit 生成 `v0.1.0` tag、ZIP 和 SHA-256。
-- [ ] 真实 E2E 全门通过后才创建公开仓库与 Release。
+- [x] 从同一 commit 生成 `v0.1.0` tag、ZIP 和 SHA-256。
+- [x] 真实 E2E 全门通过后才创建公开仓库与 Release。
 
 验收：Release 下载物、tag、校验值和 README 一致；未通过项明确保留。
 
@@ -97,7 +97,7 @@
 - [x] 使用 Slidev 制作演示 HTML。
 - [x] 断网验证静态构建、资源本地化、键盘翻页和演讲者模式。
 - [x] 导出 PDF 作为只读兜底。
-- [ ] 本地 Markdown 定稿后同步飞书云文档。
+- [x] 本地 Markdown 定稿后同步飞书云文档。
 - [ ] 公开只读权限在具体文档上再次确认并做未登录验收。
 
 验收：活动材料不使用伪造界面，不把观看演示记为已完成搭建。

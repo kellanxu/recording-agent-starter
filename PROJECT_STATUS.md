@@ -4,15 +4,16 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-v0.1.0-release-candidate-preparing`
+`phase3-v0.1.0-released-feishu-synced-public-permission-pending`
 
-Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的发布源已准备。隔离 workspace 的
+Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的 `v0.1.0` 已发布。隔离 workspace 的
 live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
 唯一主记录、唯一本人确认单、服务重启与事件重放均已通过。三条独立真实回复的
 message ID 幂等、同一记录回写、分类移动和最终确认也已通过。Stage 8 本地活动材料
 已完成并通过离线视觉与浏览器验收。根项目与 Slidev 开发依赖漏洞均已归零，公开安全
-截图已完成；`v0.1.0` 的最终同 commit 制品、公开仓库、Release、飞书同步与公开权限
-仍保持关闭，等待最后发布矩阵。
+截图已完成。GitHub 公开仓库、tag、ZIP、SHA-256 与 Release 已完成；五份活动材料已从
+本地 Markdown 同步到飞书并回读。飞书公开权限未修改，未登录验收未执行，等待用户对
+具体文档与权限档位再次确认。
 
 ## Confirmed decisions
 
@@ -88,6 +89,18 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - 16 页 PDF 兜底已导出并逐页检查，无裁切、重叠、中文缺字或破损代码块。
 - 首轮 Stage 8 验收发现并修复默认 Google Fonts 外链和相对 base 导致 presenter
   资源 404 两个问题；完整去敏 QA 记录在 `workshop/QA.md`。
+- Release commit 为 `5d7106485035253456f7eb826e07251f427b67f9`；注释 tag
+  `v0.1.0`、正式 ZIP 和 SHA-256 均指向该 commit。
+- 正式 ZIP SHA-256 为
+  `84b7030b10ce9ba37dd2c2ab5148de7245f23867677bec7fc71df4332102d22e`；
+  GitHub Release 资产 digest 回读一致。
+- GitHub 公开仓库与 Release 已创建：
+  `https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.1.0`。
+- 五份飞书活动文档均按本地 Markdown 标题与模块顺序回读；索引中的表格、代码块、
+  三张公开安全截图和四个公开链接均存在。私密 doc URL/token 只保存在 repo-ignored
+  本地同步 manifest，没有写入仓库。
+- 五份飞书文档当前均为组织内链接可读，并允许对外分享；未开启互联网公开链接，
+  未修改任何公共访问与协作设置。
 
 ## Resolved release risks
 
@@ -99,14 +112,14 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
-## Not yet achieved
+## Permission gate still open
 
-- 来自同一 release commit 的 `v0.1.0` tag、ZIP 与 SHA-256。
-- GitHub 公开仓库与 Release。
-- 飞书公开文档同步、具体权限确认与未登录验收。
+- 飞书索引以 Wiki 节点呈现；当前 CLI schema 不支持直接把 Wiki 链接设为
+  `anyone_readable`，只能由用户选择保留组织内访问，或改用底层 docx 链接作为公开入口。
+- 任何 `link_share_entity=anyone_readable` 修改仍需用户对具体文档逐项确认。
+- 只有权限变更完成后才可执行未登录访问验收。
 
 ## Next action
 
-提交最终 release source，随后只从干净 HEAD 重跑测试、类型检查、lint、format、
-privacy、license、build、Slidev HTML/PDF、隔离 ZIP 安装与 archive audit。全部通过后
-才能创建公开 GitHub Release；飞书同步随后执行，公开权限仍须展示具体文档后再次确认。
+向用户展示五份飞书文档、当前权限、拟变更字段和 Wiki 索引限制。只在用户新确认具体
+范围后修改公开权限，并在修改后 fresh read 与未登录访问验收；确认前保持现状。
