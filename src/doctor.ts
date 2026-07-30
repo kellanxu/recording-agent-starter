@@ -13,8 +13,33 @@ export interface Diagnostic {
   message: string;
 }
 
-function commandDiagnostic(name: string, command: string): Diagnostic {
-  const result = spawnSync(command, ['--version'], { encoding: 'utf8' });
+export interface DoctorOptions {
+  live?: boolean;
+  runCommand?: (
+    command: string,
+    args: readonly string[],
+  ) => { status: number | null; stdout: string; stderr: string; error?: Error };
+}
+
+function defaultRunCommand(
+  command: string,
+  args: readonly string[],
+): { status: number | null; stdout: string; stderr: string; error?: Error } {
+  const result = spawnSync(command, args, { encoding: 'utf8' });
+  return {
+    status: result.status,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    ...(result.error === undefined ? {} : { error: result.error }),
+  };
+}
+
+function commandDiagnostic(
+  name: string,
+  command: string,
+  runCommand: NonNullable<DoctorOptions['runCommand']>,
+): Diagnostic {
+  const result = runCommand(command, ['--version']);
   if (result.error !== undefined || result.status !== 0) {
     return { level: 'yellow', name, message: 'not available on PATH' };
   }
@@ -22,8 +47,12 @@ function commandDiagnostic(name: string, command: string): Diagnostic {
   return { level: 'green', name, message: version };
 }
 
-export async function diagnose(workspaceRoot: string): Promise<Diagnostic[]> {
+export async function diagnose(
+  workspaceRoot: string,
+  options: DoctorOptions = {},
+): Promise<Diagnostic[]> {
   const diagnostics: Diagnostic[] = [];
+  const runCommand = options.runCommand ?? defaultRunCommand;
 
   let config;
   try {
@@ -63,9 +92,9 @@ export async function diagnose(workspaceRoot: string): Promise<Diagnostic[]> {
     diagnostics.push({ level: 'red', name: 'skill', message: 'missing or unreadable' });
   }
 
-  diagnostics.push(commandDiagnostic('codex', 'codex'));
-  diagnostics.push(commandDiagnostic('bridge', 'lark-channel-bridge'));
-  diagnostics.push(commandDiagnostic('lark-cli', 'lark-cli'));
+  diagnostics.push(commandDiagnostic('codex', 'codex', runCommand));
+  diagnostics.push(commandDiagnostic('bridge', 'lark-channel-bridge', runCommand));
+  diagnostics.push(commandDiagnostic('lark-cli', 'lark-cli', runCommand));
   diagnostics.push(
     config.confirmationTarget === undefined
       ? {
@@ -79,13 +108,63 @@ export async function diagnose(workspaceRoot: string): Promise<Diagnostic[]> {
           message: `${config.confirmationTarget.kind} target configured for ${config.confirmationTarget.identity} identity`,
         },
   );
-  diagnostics.push({
-    level: 'yellow',
-    name: 'authorization',
-    message: 'credentials and live Feishu access are intentionally not exercised by Stage 1 doctor',
-  });
+  if (options.live === true) {
+    diagnostics.push(...liveDiagnostics(config.bridgeProfile, runCommand));
+  } else {
+    diagnostics.push({
+      level: 'yellow',
+      name: 'authorization',
+      message: 'live Codex, bridge profile and Feishu authorization were not exercised',
+    });
+  }
 
   return diagnostics;
+}
+
+function liveDiagnostics(
+  bridgeProfile: string,
+  runCommand: NonNullable<DoctorOptions['runCommand']>,
+): Diagnostic[] {
+  const codex = runCommand('codex', ['login', 'status']);
+  const bridge = runCommand('lark-channel-bridge', ['profile', 'list']);
+  const lark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify']);
+  let larkReady = false;
+  try {
+    const status = JSON.parse(lark.stdout) as {
+      verified?: boolean;
+      identities?: { user?: { status?: string; tokenStatus?: string } };
+    };
+    larkReady =
+      lark.status === 0 &&
+      status.verified === true &&
+      status.identities?.user?.status === 'ready' &&
+      status.identities.user.tokenStatus === 'valid';
+  } catch {
+    larkReady = false;
+  }
+  const bridgeProfileFound =
+    bridge.status === 0 &&
+    bridge.stdout
+      .split('\n')
+      .slice(1)
+      .some((line) => line.trim().split(/\s+/).includes(bridgeProfile));
+  return [
+    {
+      level: codex.status === 0 ? 'green' : 'red',
+      name: 'codex-login',
+      message: codex.status === 0 ? 'logged in' : 'not logged in',
+    },
+    {
+      level: bridgeProfileFound ? 'green' : 'red',
+      name: 'bridge-profile',
+      message: bridgeProfileFound ? 'configured profile found' : 'configured profile not found',
+    },
+    {
+      level: larkReady ? 'green' : 'red',
+      name: 'feishu-user-auth',
+      message: larkReady ? 'verified and valid' : 'not ready or invalid',
+    },
+  ];
 }
 
 export function highestDiagnosticLevel(diagnostics: readonly Diagnostic[]): DiagnosticLevel {

@@ -4,11 +4,11 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage5-implementation-complete`
+`phase3-stage6-offline-gates-complete-live-e2e-pending`
 
-Phase 3 Stage 5 已实现 `start/status/stop`、前台 runtime、macOS LaunchAgent 生成与
-优雅停止。实现和 mock 验证已完成，但尚未真实安装 LaunchAgent、启动飞书消费者或验证
-机器重启，因此 Stage 5 的真实运行验收仍属于 Stage 6 E2E。
+Phase 3 Stage 6 的单元、mock 集成、候选 ZIP 隔离安装与 `sample` 已通过。隔离
+`doctor` 如实为 YELLOW；真实授权、60 秒安全妙记、确认消息、服务/机器重启仍未执行，
+因此真实 E2E 与 V1 完成门均未通过。
 
 ## Confirmed decisions
 
@@ -48,6 +48,9 @@ Phase 3 Stage 5 已实现 `start/status/stop`、前台 runtime、macOS LaunchAge
 - `status` 只输出生命周期、消费者 readiness 与聚合计数，不输出 token、Transcript、
   chat/user ID 或凭证。
 - 停止只关闭消费者并保留控制状态、重试队列、记录注册表与失败状态。
+- 8 个测试文件、36 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
+- 候选 ZIP 已校验、解压、隔离安装并成功生成唯一离线样本。
+- 第一次 ZIP 验证因错误 cwd 失败、第二次从解压目录成功，均记录在 `E2E_EVIDENCE.md`。
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
@@ -62,5 +65,5 @@ Phase 3 Stage 5 已实现 `start/status/stop`、前台 runtime、macOS LaunchAge
 
 ## Next action
 
-按 `PHASE3_TASKS.md` 进入 Stage 6；补全单元与 mock 集成矩阵，生成候选 ZIP 并做
-隔离安装。真实授权、真实妙记、真实消息和后台安装仍按外部操作门单独执行。
+在不越过真实外部操作门的前提下继续 Stage 7 教程、审计和发布准备；保留所有 Release、
+tag、真实 E2E 与 Stage 8 活动材料门，等待用户确认真实授权、消息与后台安装。

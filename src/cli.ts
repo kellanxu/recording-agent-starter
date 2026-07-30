@@ -131,7 +131,7 @@ async function runInit(args: readonly string[], io: CliIO): Promise<ExitCodeValu
 async function runDoctor(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
   try {
     const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
-    const diagnostics = await diagnose(workspaceRoot);
+    const diagnostics = await diagnose(workspaceRoot, { live: args.includes('--live') });
     for (const diagnostic of diagnostics) {
       io.stdout(`${diagnostic.level.toUpperCase()} ${diagnostic.name}: ${diagnostic.message}`);
     }

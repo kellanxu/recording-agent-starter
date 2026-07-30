@@ -80,6 +80,7 @@ LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
 - [飞书事件契约](EVENT_CONTRACT.md)
 - [飞书确认契约](IM_CONTRACT.md)
 - [运行生命周期](LIFECYCLE.md)
+- [E2E 证据与未通过门](E2E_EVIDENCE.md)
 
 ## License
 

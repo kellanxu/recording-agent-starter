@@ -129,4 +129,46 @@ describe('doctor', () => {
       message: 'contains machine configuration',
     });
   });
+
+  it('can reach all green in live mode only when each external prerequisite verifies', async () => {
+    const root = testRoot('live-doctor');
+    const workspaceRoot = join(root, 'workspace');
+    await initializeWorkspace({
+      workspaceRoot,
+      libraryRoot: join(root, 'library'),
+      source: '安全样本',
+      categories: ['默认'],
+      retentionRule: '保留证据',
+      bridgeProfile: 'SafeProfile',
+      confirmationTarget: {
+        kind: 'chat',
+        id: 'safe-chat-target',
+        identity: 'bot',
+      },
+    });
+    const diagnostics = await diagnose(workspaceRoot, {
+      live: true,
+      runCommand: (command, args) => {
+        if (command === 'lark-channel-bridge' && args[0] === 'profile') {
+          return {
+            status: 0,
+            stdout: 'ACTIVE PROFILE AGENT STATUS\n* SafeProfile codex stopped\n',
+            stderr: '',
+          };
+        }
+        if (command === 'lark-cli' && args[0] === 'auth') {
+          return {
+            status: 0,
+            stdout: JSON.stringify({
+              verified: true,
+              identities: { user: { status: 'ready', tokenStatus: 'valid' } },
+            }),
+            stderr: '',
+          };
+        }
+        return { status: 0, stdout: `${command} safe-version\n`, stderr: '' };
+      },
+    });
+    expect(highestDiagnosticLevel(diagnostics)).toBe('green');
+  });
 });

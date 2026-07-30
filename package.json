@@ -21,6 +21,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "privacy:scan": "node scripts/privacy-scan.mjs",
+    "release:candidate": "npm run build && node scripts/build-release.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
