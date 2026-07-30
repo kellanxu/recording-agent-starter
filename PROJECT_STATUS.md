@@ -4,13 +4,13 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage6-real-e2e-60s-session-restart-pending`
+`phase3-stage8-local-materials-in-progress`
 
-Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor、LaunchAgent、
-一条既有待确认妙记的真实 Transcript/Codex/唯一主记录/唯一确认单、服务重启与事件重放
-已通过。三条独立真实回复的 message ID 幂等、同一记录回写、分类移动和最终确认也已
-通过。60 秒新妙记和用户会话重启尚未通过，因此截图、`v0.1.0`、公开仓库、Release
-与 Stage 8 活动材料全部保持关闭。
+Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的预发布材料已准备。隔离 workspace 的
+live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
+唯一主记录、唯一本人确认单、服务重启与事件重放均已通过。三条独立真实回复的
+message ID 幂等、同一记录回写、分类移动和最终确认也已通过。Stage 8 本地活动材料
+已获准开始；`v0.1.0`、公开仓库、Release 与飞书公开权限仍保持关闭。
 
 ## Confirmed decisions
 
@@ -68,6 +68,14 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 - 三条 message ID 重放均为 duplicate 且 Markdown digest 不变；最终分类为“学习”、
   状态为 confirmed、旧分类路径消失、用户修改意见仍保留。
 - 真实序列发现并修复“最终确认覆盖此前用户意见”的缺陷，完整顺序回归测试已加入。
+- 用户授权的本地 QuickTime/AAC 源文件只读核验后，在系统临时目录生成了恰好 60 秒的
+  AAC/M4A 私有测试副本；源文件大小和修改时间保持不变，音频未进入仓库。
+- 私人 Drive 上传与妙记创建成功；`minutes.minute.generated_v1` 实时事件自动进入
+  Starter，来源为 `event`，生成唯一 `R-0003` 和一份 sent 状态的本人 P2P 确认单。
+- 同 token 使用新 event ID 重放返回 `duplicate_token`；Transcript provider 与
+  processor 均未调用，事件、记录、Markdown 和通知计数均未增加。
+- 项目完成门要求的是服务重启后状态保留与事件重放去重。LaunchAgent 新 PID、ready、
+  状态恢复和同 token no-op 已满足该门，不把完整 logout/login 另立为发布门。
 
 ## Known pre-release risk
 
@@ -79,13 +87,13 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 
 ## Not yet achieved
 
-- 60 秒新妙记的实时飞书事件 E2E。
-- macOS 用户会话或机器重启恢复。
-- 单元测试、集成测试与真实 E2E。
-- ZIP、SHA-256、GitHub 仓库与 Release。
-- 主讲义、演示 HTML 和飞书公开文档。
+- 原创截图与 Stage 8 本地活动材料。
+- ESLint 9 开发依赖审计风险的解决或明确人工兼容决策。
+- 来自同一 release commit 的 `v0.1.0` tag、ZIP 与 SHA-256。
+- GitHub 公开仓库与 Release。
+- 飞书公开文档同步、具体权限确认与未登录验收。
 
 ## Next action
 
-录制一条 60 秒安全妙记，验证实时事件而非既有记录补漏；随后执行 macOS 用户会话重启
-并核验 LaunchAgent 恢复。两项通过前不得制作截图、tag、Release 或 Stage 8 活动材料。
+制作并验证 Stage 8 的本地 Slidev HTML、主讲义、学员手册、课前检查和讲师清单。
+不制作 PPT，不同步飞书，不修改公开权限，也不创建公开 GitHub Release。

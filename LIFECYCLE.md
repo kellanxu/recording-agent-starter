@@ -10,9 +10,11 @@ the Starter workspace path. The plist uses:
 - the current Node executable and packaged `dist/runtime.js`
 - workspace-local stdout and stderr logs
 
-This design supports process restart and user-session restart recovery. The generated plist and
-atomic control-state tests pass. Real installation evidence is tracked separately in
-`E2E_EVIDENCE.md`.
+This design supports process restart and user-session restart recovery. The V1 completion gate is
+the documented service restart: a new LaunchAgent PID becomes ready, persisted state remains
+available and replay does not duplicate work. A full macOS logout/login is not a separate gate
+unless the product contract is explicitly changed. The generated plist and atomic control-state
+tests pass. Real installation evidence is tracked separately in `E2E_EVIDENCE.md`.
 
 Before installation, `start` prints the configured confirmation target and sending identity. It
 does nothing unless `--confirm-external-writes` is present.

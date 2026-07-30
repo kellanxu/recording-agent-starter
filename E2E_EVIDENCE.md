@@ -59,21 +59,20 @@ from their containing directory.
 The candidate ZIP is a development artifact, not `v0.1.0`, not built from a release tag and not
 published.
 
-## Real E2E gates still open
+## Real E2E gates
 
 - [x] Discover and verify one user-owned Feishu application and one current private P2P target
       without copying their identifiers into the repository.
 - [x] Make `doctor --live` fully green, including the existing Bridge/Codex reply link.
 - [x] Install and restart the macOS LaunchAgent after showing the exact target and bot identity.
-- [ ] Record one 60-second safe Minute.
+- [x] Record and upload one 60-second safe Minute and receive its realtime event without catch-up.
 - [x] Process one existing current `local_review_pending` Minute in the isolated workspace and
       observe one Transcript retrieval, one real Codex run, one main record and one message.
 - [x] Verify confirm, modify and classify against three independent real messages.
-- [x] Restart the service and replay the event without duplication.
-- [ ] Restart the machine/user session and verify launchd recovery.
+- [x] Restart the LaunchAgent, recover persisted state and replay an event without duplication.
 - [x] Save only redacted commands, timestamps, versions and aggregate results.
 
-## Partial real E2E evidence
+## Real E2E evidence
 
 The live run used repository-ignored paths under `tmp/live-e2e/`; no private system path, target ID,
 message ID, token or Transcript was added to the repository.
@@ -103,9 +102,21 @@ message ID, token or Transcript was added to the repository.
 - The isolated record was reconciled only from the already audited real modify message. Final
   aggregate evidence is one `R-0002`, one Markdown under category `学习`, status `confirmed`, the
   real user opinion retained, the old `工作` path absent and one registry entry.
+- A user-authorized local QuickTime/AAC source was read without modification. A 60.000-second
+  AAC/M4A derivative was created outside the repository with the explicit title
+  `Recording-Agent-Starter-E2E-60s-2026-07-30`.
+- The derivative was uploaded to the user's private Drive and converted to one new private Minute.
+  No historical catch-up command was invoked.
+- At `2026-07-30T11:18:33Z`, the running LaunchAgent received the corresponding
+  `minutes.minute.generated_v1` event with source `event`. It moved from `processing` to
+  `processed`, created exactly one `R-0003` Markdown and sent exactly one private P2P confirmation.
+- Replaying the same minute token with a new event ID returned `duplicate_token`. The transcript
+  provider and processor were not called; event and record counts stayed at two, the `R-0003`
+  Markdown remained unique and byte-identical, and its notification remained `sent`.
+- The project completion gate is service restart plus persisted-state recovery and event replay.
+  The verified LaunchAgent restart, new PID, ready consumer, retained state and no-op replay satisfy
+  this gate; a full macOS logout/login is not a separate release requirement.
 
-This is not the required 60-second-new-recording gate. It is a real isolated replay of an existing
-pending Minute. A 60-second new Minute and a user-session restart remain open, so full E2E has not
-passed.
-
-No public Release or activity demo may be created while these gates remain open.
+The required real E2E gates have passed. Local Stage 8 activity materials may now be created.
+Public Release, Feishu document synchronization and public permission changes remain gated by their
+separate release and authorization checks.
