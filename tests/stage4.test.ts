@@ -202,6 +202,34 @@ describe('Stage 4 confirmation loop', () => {
     expect((await repository.get('R-0002'))?.path).toBe(targetPath);
   });
 
+  it('preserves the user opinion through classify and final confirmation', async () => {
+    const { workspaceRoot, libraryRoot, repository } = await liveRecord('full-human-gate');
+    const service = new ConfirmationService(workspaceRoot);
+
+    expect(
+      (await service.apply('修改 R-0002：负责人应继续保持未明确', 'safe-message-sequence-modify'))
+        .outcome,
+    ).toBe('applied');
+    expect(
+      (await service.apply('分类 R-0002：学习', 'safe-message-sequence-classify')).outcome,
+    ).toBe('applied');
+    expect((await service.apply('确认 R-0002', 'safe-message-sequence-confirm')).outcome).toBe(
+      'applied',
+    );
+
+    const entry = await repository.get('R-0002');
+    const targetPath = join(libraryRoot, '学习', 'R-0002.md');
+    expect(entry).toMatchObject({
+      recordingId: 'R-0002',
+      category: '学习',
+      path: targetPath,
+      status: 'confirmed',
+    });
+    const record = await readFile(targetPath, 'utf8');
+    expect(record).toContain('用户修改意见：负责人应继续保持未明确');
+    expect(record).toContain('已确认');
+  });
+
   it('stops for invalid IDs, invalid categories and malformed commands', async () => {
     const { workspaceRoot } = await liveRecord('clarify');
     const service = new ConfirmationService(workspaceRoot);

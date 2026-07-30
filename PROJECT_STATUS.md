@@ -4,12 +4,13 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage6-real-e2e-bridge-replies-pending`
+`phase3-stage6-real-e2e-60s-session-restart-pending`
 
 Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor、LaunchAgent、
 一条既有待确认妙记的真实 Transcript/Codex/唯一主记录/唯一确认单、服务重启与事件重放
-已通过。60 秒新妙记、Bridge 投递的修改/分类/确认三条真实回复和用户会话重启尚未通过，
-因此截图、`v0.1.0`、公开仓库、Release 与 Stage 8 活动材料全部保持关闭。
+已通过。三条独立真实回复的 message ID 幂等、同一记录回写、分类移动和最终确认也已
+通过。60 秒新妙记和用户会话重启尚未通过，因此截图、`v0.1.0`、公开仓库、Release
+与 Stage 8 活动材料全部保持关闭。
 
 ## Confirmed decisions
 
@@ -51,7 +52,7 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 - `status` 只输出生命周期、消费者 readiness 与聚合计数，不输出 token、Transcript、
   chat/user ID 或凭证。
 - 停止只关闭消费者并保留控制状态、重试队列、记录注册表与失败状态。
-- 8 个测试文件、45 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
+- 8 个测试文件、46 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
 - 候选 ZIP 已校验、解压、隔离安装并成功生成唯一离线样本。
 - 第一次 ZIP 验证因错误 cwd 失败、第二次从解压目录成功，均记录在 `E2E_EVIDENCE.md`。
 - 182 个锁定依赖条目的许可证均在已审查集合内；正式包仍为零生产依赖。
@@ -63,6 +64,10 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 - `doctor --live` 全绿，现有 Bridge 是唯一 IM 长连接；通用 reply Skill 与本机配置已绑定。
 - 一条既有 `local_review_pending` 妙记真实生成唯一 `R-0002` 主记录和一份确认单。
 - LaunchAgent 重启后运行正常；同 token 重放返回 duplicate 且记录/消息计数保持为一。
+- 三条独立真实回复分别绑定唯一 message ID；修改、分类、确认作用于同一 `R-0002`。
+- 三条 message ID 重放均为 duplicate 且 Markdown digest 不变；最终分类为“学习”、
+  状态为 confirmed、旧分类路径消失、用户修改意见仍保留。
+- 真实序列发现并修复“最终确认覆盖此前用户意见”的缺陷，完整顺序回归测试已加入。
 
 ## Known pre-release risk
 
@@ -75,7 +80,6 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 ## Not yet achieved
 
 - 60 秒新妙记的实时飞书事件 E2E。
-- Bridge 投递的真实修改、分类、确认回复命令 E2E。
 - macOS 用户会话或机器重启恢复。
 - 单元测试、集成测试与真实 E2E。
 - ZIP、SHA-256、GitHub 仓库与 Release。
@@ -83,6 +87,5 @@ Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor�
 
 ## Next action
 
-等待用户在已收到的 `R-0002` 飞书确认单所在 P2P 中依次发送真实修改、分类和确认命令。
-Bridge/Codex 应以消息 ID 调用本地 `reply`。通过后再做 60 秒新妙记和用户会话重启；
-全部通过前不得制作截图、tag、Release 或 Stage 8 活动材料。
+录制一条 60 秒安全妙记，验证实时事件而非既有记录补漏；随后执行 macOS 用户会话重启
+并核验 LaunchAgent 恢复。两项通过前不得制作截图、tag、Release 或 Stage 8 活动材料。

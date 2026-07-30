@@ -9,7 +9,7 @@ Updated: 2026-07-30
 - Codex CLI: `0.144.1`
 - `lark-channel-bridge`: `0.5.8`
 - `lark-cli`: `1.0.68`
-- Test result: 8 files, 45 tests passed
+- Test result: 8 files, 46 tests passed
 - Build, format, lint, typecheck, privacy scan: passed
 
 The mock integration covers:
@@ -68,10 +68,10 @@ published.
 - [ ] Record one 60-second safe Minute.
 - [x] Process one existing current `local_review_pending` Minute in the isolated workspace and
       observe one Transcript retrieval, one real Codex run, one main record and one message.
-- [ ] Verify confirm, modify and classify against real messages.
+- [x] Verify confirm, modify and classify against three independent real messages.
 - [x] Restart the service and replay the event without duplication.
 - [ ] Restart the machine/user session and verify launchd recovery.
-- [ ] Save only redacted commands, timestamps, versions and aggregate results.
+- [x] Save only redacted commands, timestamps, versions and aggregate results.
 
 ## Partial real E2E evidence
 
@@ -92,9 +92,20 @@ message ID, token or Transcript was added to the repository.
 - Restarting the LaunchAgent at `2026-07-30T10:52:35Z` produced a running service with the Minutes
   consumer ready. Replaying the same candidate returned one `duplicate_token`; aggregate record
   and notification counts stayed at one.
+- The first reply attempts bundled three commands into one message and were correctly rejected by
+  the exact-command contract. Three later independent user messages each had a unique message ID.
+- Bridge/Codex applied the real modify message before the read-back check. The local reply Skill
+  then applied classify and confirm in order. Replaying all three real message IDs returned
+  `duplicate` and did not change the Markdown digest.
+- The real sequence exposed a defect: confirm replaced the entire human-confirmation section and
+  erased the earlier opinion text. The implementation now preserves prior opinions through final
+  confirmation and has a full modify/classify/confirm regression test.
+- The isolated record was reconciled only from the already audited real modify message. Final
+  aggregate evidence is one `R-0002`, one Markdown under category `学习`, status `confirmed`, the
+  real user opinion retained, the old `工作` path absent and one registry entry.
 
 This is not the required 60-second-new-recording gate. It is a real isolated replay of an existing
-pending Minute. The three real Bridge-delivered reply commands and a user-session restart remain
-open, so full E2E has not passed.
+pending Minute. A 60-second new Minute and a user-session restart remain open, so full E2E has not
+passed.
 
 No public Release or activity demo may be created while these gates remain open.

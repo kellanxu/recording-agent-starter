@@ -52,10 +52,26 @@ function audit(content: string, timestamp: string, action: string, messageId: st
   return `${content.trimEnd()}\n- ${timestamp} ${action}; ${marker}\n`;
 }
 
-function humanOpinion(content: string, text: string): string {
-  const section = /## 人工确认\n\n[\s\S]*?\n\n## 审计/;
-  if (!section.test(content)) throw new Error('record is missing the human confirmation section');
-  return content.replace(section, `## 人工确认\n\n${text}\n\n## 审计`);
+function updateHumanConfirmation(
+  content: string,
+  command: Extract<ConfirmationCommand, { kind: 'confirm' | 'modify' }>,
+): string {
+  const section = /## 人工确认\n\n([\s\S]*?)\n\n## 审计/;
+  const match = section.exec(content);
+  const existing = match?.[1];
+  if (existing === undefined) throw new Error('record is missing the human confirmation section');
+
+  const lines = existing
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '' && line !== '未确认');
+  if (command.kind === 'modify') {
+    const withoutConfirmed = lines.filter((line) => line !== '已确认');
+    withoutConfirmed.push(`用户修改意见：${command.opinion}`);
+    return content.replace(section, `## 人工确认\n\n${withoutConfirmed.join('\n')}\n\n## 审计`);
+  }
+  if (!lines.includes('已确认')) lines.push('已确认');
+  return content.replace(section, `## 人工确认\n\n${lines.join('\n')}\n\n## 审计`);
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -118,10 +134,7 @@ export class ConfirmationService {
     const timestamp = this.now().toISOString();
     const nextStatus = command.kind === 'confirm' ? 'confirmed' : 'revision_requested';
     let updated = updateFrontmatter(original, 'status', nextStatus);
-    updated = humanOpinion(
-      updated,
-      command.kind === 'confirm' ? '已确认' : `用户修改意见：${command.opinion}`,
-    );
+    updated = updateHumanConfirmation(updated, command);
     updated = audit(
       updated,
       timestamp,
