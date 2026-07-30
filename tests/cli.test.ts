@@ -34,7 +34,7 @@ describe('CLI baseline', () => {
     expect(output.stderr.join('\n')).toContain('Unknown command');
   });
 
-  it.each(['start', 'status', 'stop', 'catch-up'])(
+  it.each(['start', 'status', 'stop'])(
     'does not pretend that %s is implemented',
     async (command) => {
       const output = capture();

@@ -3,9 +3,13 @@
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 
+import { CodexCliRunner } from './codex-cli-runner.js';
+import { ControlPlane } from './control-plane.js';
 import { diagnose, highestDiagnosticLevel } from './doctor.js';
 import { ExitCode, type ExitCode as ExitCodeValue } from './exit-codes.js';
 import { initializeWorkspace, parseCategories } from './init.js';
+import { LarkCliMinutesClient } from './lark-minutes-client.js';
+import { LiveTranscriptProcessor } from './live-processor.js';
 import { runSample } from './sample.js';
 
 const VERSION = '0.0.0';
@@ -133,6 +137,33 @@ async function executeSample(args: readonly string[], io: CliIO): Promise<ExitCo
   }
 }
 
+async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const daysText = option(args, '--days');
+    if (daysText === undefined || daysText !== '1') {
+      throw new Error('catch-up requires --days 1');
+    }
+    const client = new LarkCliMinutesClient(workspaceRoot);
+    const processor = new LiveTranscriptProcessor(workspaceRoot, new CodexCliRunner(workspaceRoot));
+    const controlPlane = new ControlPlane(workspaceRoot, client, processor);
+    const results = await controlPlane.catchUp(1, client);
+    const counts = results.reduce<Record<string, number>>((summary, result) => {
+      summary[result.outcome] = (summary[result.outcome] ?? 0) + 1;
+      return summary;
+    }, {});
+    io.stdout(`Catch-up result: ${JSON.stringify(counts)}`);
+    io.stdout('Only the requested one-day window was searched; no Feishu content was modified.');
+    return results.some((result) => result.outcome === 'failed')
+      ? ExitCode.failure
+      : ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown catch-up error';
+    io.stderr(`Catch-up failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
 export function helpText(): string {
   return `Recording Agent Starter ${VERSION}
 
@@ -153,8 +184,8 @@ Options:
   -v, --version        Show version
 
 Current milestone:
-  Stage 2 offline sample is implemented.
-  start, status, stop and catch-up remain intentionally unavailable.`;
+  Stage 3 event control plane and catch-up are implemented.
+  start, status and stop remain intentionally unavailable.`;
 }
 
 export async function runCli(
@@ -182,6 +213,7 @@ export async function runCli(
   if (first === 'init') return runInit(args.slice(1), io);
   if (first === 'doctor') return runDoctor(args.slice(1), io);
   if (first === 'sample') return executeSample(args.slice(1), io);
+  if (first === 'catch-up') return runCatchUp(args.slice(1), io);
 
   io.stderr(
     `Command "${first}" is not implemented in the current milestone. No external action was taken.`,

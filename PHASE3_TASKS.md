@@ -33,13 +33,13 @@
 
 ## Stage 3：确定性事件控制面
 
-- [ ] 接入 `minutes.minute.generated_v1`。
-- [ ] 实现 `event_id` 与 `minute_token` 双重去重。
-- [ ] 实现 Transcript 获取。
-- [ ] Transcript 未就绪时只登记并退避重试当前 token。
-- [ ] 实现原子状态文件与原子锁。
-- [ ] 实现每日一次补漏。
-- [ ] 实现 `catch-up --days 1`，已有 token 返回 duplicate。
+- [x] 接入 `minutes.minute.generated_v1`。
+- [x] 实现 `event_id` 与 `minute_token` 双重去重。
+- [x] 实现 Transcript 获取。
+- [x] Transcript 未就绪时只登记并退避重试当前 token。
+- [x] 实现原子状态文件与原子锁。
+- [x] 实现每日一次补漏。
+- [x] 实现 `catch-up --days 1`，已有 token 返回 duplicate。
 
 验收：事件重放、补漏和服务重启不会生成重复主记录。
 
