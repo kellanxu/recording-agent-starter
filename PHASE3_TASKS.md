@@ -23,11 +23,11 @@
 
 ## Stage 2：离线样本链路
 
-- [ ] 加入安全 Transcript fixture。
-- [ ] 实现 `sample`。
-- [ ] 定义 Codex Runner 的结构化输入输出契约。
-- [ ] 实现唯一 Markdown 主记录、frontmatter 与固定章节。
-- [ ] 测试候选待办缺字段时使用“未明确”，不补造事实。
+- [x] 加入安全 Transcript fixture。
+- [x] 实现 `sample`。
+- [x] 定义 Codex Runner 的结构化输入输出契约。
+- [x] 实现唯一 Markdown 主记录、frontmatter 与固定章节。
+- [x] 测试候选待办缺字段时使用“未明确”，不补造事实。
 
 验收：无需真实飞书即可从安全样本生成一份可审计记录。
 

@@ -6,6 +6,7 @@ import { createInterface } from 'node:readline/promises';
 import { diagnose, highestDiagnosticLevel } from './doctor.js';
 import { ExitCode, type ExitCode as ExitCodeValue } from './exit-codes.js';
 import { initializeWorkspace, parseCategories } from './init.js';
+import { runSample } from './sample.js';
 
 const VERSION = '0.0.0';
 const COMMANDS = ['init', 'doctor', 'sample', 'start', 'status', 'stop', 'catch-up'] as const;
@@ -114,6 +115,24 @@ async function runDoctor(args: readonly string[], io: CliIO): Promise<ExitCodeVa
   }
 }
 
+async function executeSample(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    const result = await runSample(workspaceRoot);
+    io.stdout(
+      result.created
+        ? `Offline sample created one main record: ${result.recordPath}`
+        : `Offline sample already exists; no duplicate was created: ${result.recordPath}`,
+    );
+    io.stdout('This is fixture evidence, not a real Feishu or Codex end-to-end result.');
+    return ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown sample error';
+    io.stderr(`Sample failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
 export function helpText(): string {
   return `Recording Agent Starter ${VERSION}
 
@@ -134,8 +153,8 @@ Options:
   -v, --version        Show version
 
 Current milestone:
-  Stage 1 configuration and doctor are implemented.
-  sample, start, status, stop and catch-up remain intentionally unavailable.`;
+  Stage 2 offline sample is implemented.
+  start, status, stop and catch-up remain intentionally unavailable.`;
 }
 
 export async function runCli(
@@ -162,6 +181,7 @@ export async function runCli(
 
   if (first === 'init') return runInit(args.slice(1), io);
   if (first === 'doctor') return runDoctor(args.slice(1), io);
+  if (first === 'sample') return executeSample(args.slice(1), io);
 
   io.stderr(
     `Command "${first}" is not implemented in the current milestone. No external action was taken.`,

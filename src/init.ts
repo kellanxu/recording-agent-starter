@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { writeFileAtomic } from './atomic-file.js';
 import { CONFIG_DIRECTORY, type MachineConfig, writeMachineConfig } from './config.js';
 import { validateSafeDirectory } from './path-safety.js';
+import { writeSemanticRules } from './semantic-rules.js';
 import { renderRecordingSkill } from './skill-template.js';
 
 export interface InitAnswers {
@@ -76,11 +77,9 @@ export async function initializeWorkspace(
   await writeMachineConfig(config);
 
   const skillPath = join(workspaceRoot, 'skills', 'personal-recording-processor', 'SKILL.md');
-  await writeFileAtomic(
-    skillPath,
-    renderRecordingSkill({ source, categories, retentionRule }),
-    0o644,
-  );
+  const semanticAnswers = { source, categories, retentionRule };
+  await writeFileAtomic(skillPath, renderRecordingSkill(semanticAnswers), 0o644);
+  await writeSemanticRules(workspaceRoot, semanticAnswers);
 
   return { config, skillPath };
 }

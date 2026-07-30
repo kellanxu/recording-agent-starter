@@ -2,7 +2,7 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 3 Stage 1 已实现安全初始化与离线诊断；`sample` 和真实事件 Loop
+> 当前状态：Phase 3 Stage 2 已实现安全初始化、离线诊断与离线样本；真实事件 Loop
 > 尚未实现，也尚未发布。不要把本仓库当作已经可安装的产品。
 
 ## 计划完成的 Loop
@@ -29,7 +29,7 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-当前已实现 `init` 与 `doctor`。初始化默认逐项询问 Starter workspace、录音来源、
+当前已实现 `init`、`doctor` 与 `sample`。初始化默认逐项询问 Starter workspace、录音来源、
 分类体系、Markdown 入库位置和沉淀规则；也可显式传入参数：
 
 ```bash
@@ -41,9 +41,11 @@ recording-agent init \
   --retention "保留原始证据、结论和人工意见"
 
 recording-agent doctor --workspace /absolute/path/to/starter-workspace
+recording-agent sample --workspace /absolute/path/to/starter-workspace
 ```
 
-其余产品命令会明确返回 unavailable，不代表已经实现。
+`sample` 只处理仓库自带的安全 fixture，输出会明确声明不是真实飞书或 Codex E2E。
+重复执行不会创建第二份 `R-0001`。其余产品命令会明确返回 unavailable，不代表已经实现。
 
 ## V1 边界
 
