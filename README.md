@@ -72,6 +72,8 @@ recording-agent stop --workspace /absolute/path/to/starter-workspace
 `--confirm-external-writes`。需要严格限制为一条既有妙记时，追加
 `--minute-token`；找不到时会停止，不会退化为处理整天。它不修改妙记本身。macOS 的 `start` 安装用户级
 LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
+同一 token 若保留在 `failed` 状态，后续 `catch-up` 会重试该事件而不是注册第二条；
+已预留或发送状态的确认单不会自动重发。
 
 `bridge-link` 把通用回复路由 Skill 安装到本机 Codex，并把 active Starter workspace
 写入独立 machine config；不会发送飞书消息。现有 Bridge 保持唯一 IM 长连接。收到

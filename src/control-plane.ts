@@ -133,7 +133,15 @@ export class ControlPlane {
       throw new Error('requested minute token was not found in the one-day window');
     }
     const results: IngestResult[] = [];
-    for (const event of events) results.push(await this.ingest({ ...event, source: 'catch-up' }));
+    for (const event of events) {
+      const result = await this.ingest({ ...event, source: 'catch-up' });
+      if (result.outcome === 'duplicate_event' || result.outcome === 'duplicate_token') {
+        const retry = await this.retryFailedMinute(event.minuteToken);
+        results.push(retry ?? result);
+      } else {
+        results.push(result);
+      }
+    }
     return results;
   }
 
@@ -203,6 +211,13 @@ export class ControlPlane {
     } catch {
       return this.fail(eventId, 'processing_failed');
     }
+  }
+
+  private async retryFailedMinute(minuteToken: string): Promise<IngestResult | undefined> {
+    const state = await this.store.read();
+    const eventId = state.minuteTokens[minuteToken];
+    if (eventId === undefined || state.events[eventId]?.status !== 'failed') return undefined;
+    return this.attempt(eventId);
   }
 
   private fail(eventId: string, errorCode: string): Promise<IngestResult> {

@@ -240,6 +240,31 @@ describe('deterministic event control plane', () => {
     );
   });
 
+  it('retries a retained failed event through catch-up without registering a second event', async () => {
+    let shouldFail = true;
+    const calls: string[] = [];
+    const plane = new ControlPlane(
+      testRoot('failed-recovery'),
+      { fetch: () => Promise.resolve({ transcript: '安全逐字稿' }) },
+      {
+        process: (input) => {
+          calls.push(input.eventId);
+          if (shouldFail) return Promise.reject(new Error('temporary failure'));
+          return Promise.resolve('R-0002');
+        },
+      },
+    );
+    const source: CatchUpSource = {
+      list: () => Promise.resolve([event('catchup-1', 'token-1', 'catch-up')]),
+    };
+
+    expect((await plane.catchUp(1, source, 'token-1'))[0]?.outcome).toBe('failed');
+    shouldFail = false;
+    expect((await plane.catchUp(1, source, 'token-1'))[0]?.outcome).toBe('processed');
+    expect(calls).toEqual(['catchup-1', 'catchup-1']);
+    expect(Object.keys((await plane.store.read()).events)).toEqual(['catchup-1']);
+  });
+
   it('uses the structured runner contract to create one persistent live record', async () => {
     const root = testRoot('live-record');
     const workspaceRoot = join(root, 'workspace');
