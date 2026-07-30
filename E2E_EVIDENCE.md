@@ -61,14 +61,40 @@ published.
 
 ## Real E2E gates still open
 
-- [ ] Configure and verify a user-owned Feishu application and confirmation target.
-- [ ] Make `doctor --live` fully green.
-- [ ] Install the macOS LaunchAgent after showing the exact target and sending identity.
+- [x] Discover and verify one user-owned Feishu application and one current private P2P target
+      without copying their identifiers into the repository.
+- [x] Make `doctor --live` fully green, including the existing Bridge/Codex reply link.
+- [x] Install and restart the macOS LaunchAgent after showing the exact target and bot identity.
 - [ ] Record one 60-second safe Minute.
-- [ ] Observe one event, one Transcript retrieval, one Codex run, one main record and one message.
+- [x] Process one existing current `local_review_pending` Minute in the isolated workspace and
+      observe one Transcript retrieval, one real Codex run, one main record and one message.
 - [ ] Verify confirm, modify and classify against real messages.
-- [ ] Restart the service and replay the event without duplication.
+- [x] Restart the service and replay the event without duplication.
 - [ ] Restart the machine/user session and verify launchd recovery.
 - [ ] Save only redacted commands, timestamps, versions and aggregate results.
+
+## Partial real E2E evidence
+
+The live run used repository-ignored paths under `tmp/live-e2e/`; no private system path, target ID,
+message ID, token or Transcript was added to the repository.
+
+- Read-only discovery found exactly one active Bridge profile and one current private internal P2P
+  confirmation target using bot identity. The private meeting router was not modified.
+- The one-day Minutes search returned three candidates. Two had existing `deleted` tombstones and
+  were excluded. An exact token filter selected the only non-tombstoned
+  `local_review_pending` candidate.
+- The first exact attempt stopped at `processing_failed` before record creation or message sending.
+  Diagnosis found that the real Codex Structured Outputs API rejected the repository schema.
+- Commit `fbc4804` added the required integer type and strict nullable action fields. A separate
+  live schema request then passed before the failed event was retried.
+- The retained event recovered to `processed`. Aggregate evidence was exactly one event, one token,
+  one `R-0002` record under the isolated library and one notification with `sent` status.
+- Restarting the LaunchAgent at `2026-07-30T10:52:35Z` produced a running service with the Minutes
+  consumer ready. Replaying the same candidate returned one `duplicate_token`; aggregate record
+  and notification counts stayed at one.
+
+This is not the required 60-second-new-recording gate. It is a real isolated replay of an existing
+pending Minute. The three real Bridge-delivered reply commands and a user-session restart remain
+open, so full E2E has not passed.
 
 No public Release or activity demo may be created while these gates remain open.

@@ -4,11 +4,12 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage7-prepublish-prepared-live-e2e-pending`
+`phase3-stage6-real-e2e-bridge-replies-pending`
 
-Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、原创流程图、
-依赖许可证审计和隐私扫描已完成。真实授权、60 秒安全妙记、确认消息、服务/机器重启仍
-未执行，因此截图、`v0.1.0`、公开仓库、Release 与 Stage 8 活动材料全部保持关闭。
+Phase 3 Stage 7 的预发布材料已准备。隔离 workspace 的 live doctor、LaunchAgent、
+一条既有待确认妙记的真实 Transcript/Codex/唯一主记录/唯一确认单、服务重启与事件重放
+已通过。60 秒新妙记、Bridge 投递的修改/分类/确认三条真实回复和用户会话重启尚未通过，
+因此截图、`v0.1.0`、公开仓库、Release 与 Stage 8 活动材料全部保持关闭。
 
 ## Confirmed decisions
 
@@ -38,6 +39,8 @@ Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、�
 - Transcript 未就绪时只重试当前 token，指数退避上限为一小时。
 - 控制状态、记录注册表与锁均在 Starter workspace 内原子持久化；重启后继续去重。
 - `catch-up --days 1` 使用 owner/participant 两次只读搜索后按 token 合并。
+- `catch-up --minute-token` 可把真实恢复限定到一个 token；保留的 failed 事件可恢复，
+  不会注册第二个事件或重发已预留通知。
 - 确认单不含 Transcript、机器路径或凭证；通知发送前先持久化幂等预留。
 - `确认`、`修改`、`分类` 均按 message ID 幂等；修改保留 AI 原输出和用户意见。
 - 改分类使用文件移动并更新同一注册表项，不复制第二份正文。
@@ -48,7 +51,7 @@ Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、�
 - `status` 只输出生命周期、消费者 readiness 与聚合计数，不输出 token、Transcript、
   chat/user ID 或凭证。
 - 停止只关闭消费者并保留控制状态、重试队列、记录注册表与失败状态。
-- 8 个测试文件、37 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
+- 8 个测试文件、45 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
 - 候选 ZIP 已校验、解压、隔离安装并成功生成唯一离线样本。
 - 第一次 ZIP 验证因错误 cwd 失败、第二次从解压目录成功，均记录在 `E2E_EVIDENCE.md`。
 - 182 个锁定依赖条目的许可证均在已审查集合内；正式包仍为零生产依赖。
@@ -56,6 +59,10 @@ Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、�
   与录音文件扫描；相邻 SHA-256 复核通过。
 - CLI help、README、macOS 与 Windows beta 教程已按当前实现逐项核对。
 - 原创 Mermaid 流程图只呈现已实现链路，不伪造飞书或产品界面。
+- 本机只读发现唯一确认目标为正常、内部 P2P；Starter 使用隔离目录且未修改私人录音系统。
+- `doctor --live` 全绿，现有 Bridge 是唯一 IM 长连接；通用 reply Skill 与本机配置已绑定。
+- 一条既有 `local_review_pending` 妙记真实生成唯一 `R-0002` 主记录和一份确认单。
+- LaunchAgent 重启后运行正常；同 token 重放返回 duplicate 且记录/消息计数保持为一。
 
 ## Known pre-release risk
 
@@ -67,15 +74,15 @@ Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、�
 
 ## Not yet achieved
 
-- 真实飞书事件、Transcript 与 Codex Runner E2E。
-- 真实飞书确认消息与回复命令 E2E。
-- 真实 macOS LaunchAgent 安装、进程重启与机器重启恢复。
+- 60 秒新妙记的实时飞书事件 E2E。
+- Bridge 投递的真实修改、分类、确认回复命令 E2E。
+- macOS 用户会话或机器重启恢复。
 - 单元测试、集成测试与真实 E2E。
 - ZIP、SHA-256、GitHub 仓库与 Release。
 - 主讲义、演示 HTML 和飞书公开文档。
 
 ## Next action
 
-等待用户确认是否进入真实外部 E2E：需要核对本人确认目标与发送身份、修复 live doctor、
-安装 LaunchAgent、录制安全妙记并收发真实确认消息。通过前不得制作截图、tag、Release
-或 Stage 8 活动材料。
+等待用户在已收到的 `R-0002` 飞书确认单所在 P2P 中依次发送真实修改、分类和确认命令。
+Bridge/Codex 应以消息 ID 调用本地 `reply`。通过后再做 60 秒新妙记和用户会话重启；
+全部通过前不得制作截图、tag、Release 或 Stage 8 活动材料。
