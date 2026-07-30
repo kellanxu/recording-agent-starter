@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { helpText, runCli, type CliIO } from '../src/cli.js';
+import { commandHelpText, helpText, runCli, type CliIO } from '../src/cli.js';
 import { ExitCode } from '../src/exit-codes.js';
 
 function capture(): { io: CliIO; stdout: string[]; stderr: string[] } {
@@ -32,5 +32,13 @@ describe('CLI baseline', () => {
     expect(await runCli(['unexpected'], output.io)).toBe(ExitCode.usage);
     expect(output.stdout).toEqual([]);
     expect(output.stderr.join('\n')).toContain('Unknown command');
+  });
+
+  it('prints command help without performing the command', async () => {
+    const output = capture();
+
+    expect(await runCli(['start', '--help'], output.io)).toBe(ExitCode.success);
+    expect(output.stdout).toEqual([commandHelpText('start')]);
+    expect(output.stderr).toEqual([]);
   });
 });

@@ -18,7 +18,7 @@
 → 回写同一记录
 ```
 
-## 计划提供的命令
+## CLI 命令
 
 ```text
 recording-agent init
@@ -30,8 +30,8 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-当前已实现 `init`、`doctor` 与 `sample`。初始化默认逐项询问 Starter workspace、录音来源、
-分类体系、Markdown 入库位置和沉淀规则；也可显式传入参数：
+以上命令均已实现，但真实飞书 E2E 尚未通过。初始化默认逐项询问 Starter workspace、
+录音来源、分类体系、Markdown 入库位置和沉淀规则；也可显式传入参数：
 
 ```bash
 recording-agent init \
@@ -44,6 +44,7 @@ recording-agent init \
   --confirmation-identity bot
 
 recording-agent doctor --workspace /absolute/path/to/starter-workspace
+recording-agent doctor --workspace /absolute/path/to/starter-workspace --live
 recording-agent sample --workspace /absolute/path/to/starter-workspace
 recording-agent catch-up \
   --workspace /absolute/path/to/starter-workspace \
@@ -81,6 +82,11 @@ LaunchAgent；Windows beta 必须追加 `--foreground` 并保持终端开启。
 - [飞书确认契约](IM_CONTRACT.md)
 - [运行生命周期](LIFECYCLE.md)
 - [E2E 证据与未通过门](E2E_EVIDENCE.md)
+- [macOS 安装教程](docs/MACOS.md)
+- [Windows beta 教程](docs/WINDOWS_BETA.md)
+- [故障恢复](docs/TROUBLESHOOTING.md)
+- [原创流程图](docs/FLOW.md)
+- [依赖许可证审计](DEPENDENCY_LICENSES.md)
 
 ## License
 

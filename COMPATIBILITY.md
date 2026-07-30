@@ -19,3 +19,11 @@ used because the observed peer or engine ranges did not satisfy this project con
 
 This table is compatibility evidence, not an end-to-end success claim. Real authorization, event
 delivery, Transcript retrieval and write-back remain gated until their implementation stages.
+
+## Development audit note
+
+`npm audit --omit=dev` reports zero production vulnerabilities. The full development audit currently
+reports five high-severity findings through ESLint 9's glob dependency chain. npm proposes ESLint 10,
+but that release raises its Node.js floor to `20.19`, above this project's declared `>=20.12`
+contract. The project does not use `--force` or an unsafe transitive override. This must be resolved
+or explicitly re-decided before `v0.1.0`; the packaged Starter has zero production dependencies.

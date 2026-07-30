@@ -310,6 +310,36 @@ Current milestone:
   Real end-to-end validation has not yet passed.`;
 }
 
+export function commandHelpText(command: Command): string {
+  const usage: Record<Command, string> = {
+    init: `recording-agent init
+  [--workspace <absolute-path>]
+  [--source <text>]
+  [--categories <comma-separated>]
+  [--library <absolute-path>]
+  [--retention <text>]
+  [--bridge-profile <name>]
+  [--confirmation-chat-id <id> | --confirmation-user-id <id>]
+  [--confirmation-identity bot|user]`,
+    doctor: 'recording-agent doctor [--workspace <absolute-path>] [--live]',
+    sample: 'recording-agent sample [--workspace <absolute-path>]',
+    'catch-up': `recording-agent catch-up
+  [--workspace <absolute-path>]
+  --days 1
+  --confirm-external-writes`,
+    start: `recording-agent start
+  [--workspace <absolute-path>]
+  [--foreground]
+  --confirm-external-writes`,
+    status: 'recording-agent status [--workspace <absolute-path>]',
+    stop: 'recording-agent stop [--workspace <absolute-path>]',
+  };
+  return `${usage[command]}
+
+Use --workspace to avoid an interactive path prompt.
+No command creates tasks, publishes content or deletes recordings.`;
+}
+
 export async function runCli(
   args: readonly string[],
   io: CliIO = defaultIO,
@@ -330,6 +360,11 @@ export async function runCli(
     io.stderr(`Unknown command: ${first}`);
     io.stderr('Run "recording-agent --help" for usage.');
     return ExitCode.usage;
+  }
+
+  if (args[1] === '--help' || args[1] === '-h') {
+    io.stdout(commandHelpText(first));
+    return ExitCode.success;
   }
 
   if (first === 'init') return runInit(args.slice(1), io);

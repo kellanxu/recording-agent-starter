@@ -81,11 +81,11 @@
 
 ## Stage 7：教程与发布
 
-- [ ] README 与实际命令逐项核对。
-- [ ] 完成 macOS 教程和 Windows beta 教程。
+- [x] README 与实际命令逐项核对。
+- [x] 完成 macOS 教程和 Windows beta 教程。
 - [ ] 生成原创截图和流程图。
-- [ ] 运行 dependency license audit。
-- [ ] 运行 secret、私人路径、ID、Transcript 和妙记 URL 扫描。
+- [x] 运行 dependency license audit。
+- [x] 运行 secret、私人路径、ID、Transcript 和妙记 URL 扫描。
 - [ ] 从同一 commit 生成 `v0.1.0` tag、ZIP 和 SHA-256。
 - [ ] 真实 E2E 全门通过后才创建公开仓库与 Release。
 

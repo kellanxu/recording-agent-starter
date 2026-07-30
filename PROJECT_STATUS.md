@@ -4,11 +4,11 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase3-stage6-offline-gates-complete-live-e2e-pending`
+`phase3-stage7-prepublish-prepared-live-e2e-pending`
 
-Phase 3 Stage 6 的单元、mock 集成、候选 ZIP 隔离安装与 `sample` 已通过。隔离
-`doctor` 如实为 YELLOW；真实授权、60 秒安全妙记、确认消息、服务/机器重启仍未执行，
-因此真实 E2E 与 V1 完成门均未通过。
+Phase 3 Stage 7 的 README 对照、macOS/Windows beta 教程、故障恢复、原创流程图、
+依赖许可证审计和隐私扫描已完成。真实授权、60 秒安全妙记、确认消息、服务/机器重启仍
+未执行，因此截图、`v0.1.0`、公开仓库、Release 与 Stage 8 活动材料全部保持关闭。
 
 ## Confirmed decisions
 
@@ -48,9 +48,20 @@ Phase 3 Stage 6 的单元、mock 集成、候选 ZIP 隔离安装与 `sample` �
 - `status` 只输出生命周期、消费者 readiness 与聚合计数，不输出 token、Transcript、
   chat/user ID 或凭证。
 - 停止只关闭消费者并保留控制状态、重试队列、记录注册表与失败状态。
-- 8 个测试文件、36 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
+- 8 个测试文件、37 项测试覆盖 Stage 6 指定矩阵与 mock 端到端链路。
 - 候选 ZIP 已校验、解压、隔离安装并成功生成唯一离线样本。
 - 第一次 ZIP 验证因错误 cwd 失败、第二次从解压目录成功，均记录在 `E2E_EVIDENCE.md`。
+- 182 个锁定依赖条目的许可证均在已审查集合内；正式包仍为零生产依赖。
+- 候选 ZIP 的 136 个内部路径/文本条目通过路径穿越、私密路径、ID、凭证、妙记 URL
+  与录音文件扫描；相邻 SHA-256 复核通过。
+- CLI help、README、macOS 与 Windows beta 教程已按当前实现逐项核对。
+- 原创 Mermaid 流程图只呈现已实现链路，不伪造飞书或产品界面。
+
+## Known pre-release risk
+
+- 完整 dev audit 仍有 5 个来自 ESLint 9 glob 依赖链的 high 告警；生产依赖审计为 0。
+- npm 建议升级 ESLint 10，但其 Node 下限 `20.19` 高于当前项目契约 `>=20.12`。
+- 未使用 `--force` 或不安全 override；`v0.1.0` 前必须解决或由人明确调整兼容契约。
 - 其他未实现命令使用稳定退出码 `3`，不会伪装成功。
 - 隐私扫描覆盖已跟踪和未忽略的新文件。
 
@@ -65,5 +76,6 @@ Phase 3 Stage 6 的单元、mock 集成、候选 ZIP 隔离安装与 `sample` �
 
 ## Next action
 
-在不越过真实外部操作门的前提下继续 Stage 7 教程、审计和发布准备；保留所有 Release、
-tag、真实 E2E 与 Stage 8 活动材料门，等待用户确认真实授权、消息与后台安装。
+等待用户确认是否进入真实外部 E2E：需要核对本人确认目标与发送身份、修复 live doctor、
+安装 LaunchAgent、录制安全妙记并收发真实确认消息。通过前不得制作截图、tag、Release
+或 Stage 8 活动材料。

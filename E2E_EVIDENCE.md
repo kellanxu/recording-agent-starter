@@ -9,7 +9,7 @@ Updated: 2026-07-30
 - Codex CLI: `0.144.1`
 - `lark-channel-bridge`: `0.5.8`
 - `lark-cli`: `1.0.68`
-- Test result: 8 files, 36 tests passed
+- Test result: 8 files, 37 tests passed
 - Build, format, lint, typecheck, privacy scan: passed
 
 The mock integration covers:
@@ -42,6 +42,7 @@ Successful checks:
    - confirmation target was intentionally absent;
    - live Feishu authorization was intentionally not exercised.
 7. `sample` generated exactly one `R-0001-offline-sample.md`.
+8. Packaged archive audit passed for 136 paths and text payloads.
 
 The first isolation attempt ran `node dist/cli.js` from the parent `release/` directory and failed
 with `MODULE_NOT_FOUND`. The package contents were present; rerunning from the extracted package
@@ -49,6 +50,11 @@ directory passed. Because `npm install --omit=dev` in the wrong directory resolv
 project, it also pruned the development dependencies from the root `node_modules`; `npm install`
 restored the exact lockfile dependencies before the full baseline passed again. This failed attempt
 and its side effect are retained here so they are not rewritten as success.
+
+A later SHA check was also invoked from the repository root while the checksum file contained the
+adjacent archive filename. It failed to locate the ZIP from that cwd; rerunning from `release/`
+passed. Release instructions therefore keep the ZIP and checksum together and run verification
+from their containing directory.
 
 The candidate ZIP is a development artifact, not `v0.1.0`, not built from a release tag and not
 published.
