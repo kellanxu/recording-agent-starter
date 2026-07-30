@@ -4,9 +4,11 @@ Updated: 2026-07-30
 
 ## Current phase
 
-`phase2-workspace-ready`
+`phase3-stage0-complete`
 
-Phase 2 已建立独立项目工作台、协作契约和 Phase 3 任务清单。当前没有产品运行代码、依赖安装、飞书授权、后台服务或公开仓库。
+Phase 3 Stage 0 已建立可重复的 TypeScript、测试、lint、format、build 与隐私扫描基线。
+当前只有 CLI 脚手架；所有产品命令仍明确返回 unavailable。尚未进行飞书授权、后台服务安装、
+真实 E2E 或公开发布。
 
 ## Confirmed decisions
 
@@ -22,12 +24,14 @@ Phase 2 已建立独立项目工作台、协作契约和 Phase 3 任务清单。
 ## Evidence currently available
 
 - 项目根目录独立于私人知识库。
-- `AGENTS.md`、README、`.gitignore`、MIT License 与 Phase 3 清单存在。
-- 本地 Git 已初始化；`git log -1` 可回读 Phase 2 基线 commit。
+- Phase 2 基线 commit 为 `696d62918dcfb69e537fd8dc3e5a2de8b716658a`。
+- 依赖已锁定在 `package-lock.json`；兼容性判断记录在 `COMPATIBILITY.md`。
+- `npm run check` 与 `npm run build` 可重复通过。
+- CLI help 可运行；未实现命令使用稳定退出码 `3`，不会伪装成功。
+- 隐私扫描覆盖已跟踪和未忽略的新文件。
 
 ## Not yet achieved
 
-- CLI 脚手架。
 - `doctor`、`sample` 和事件 Loop。
 - 单元测试、集成测试与真实 E2E。
 - ZIP、SHA-256、GitHub 仓库与 Release。
@@ -35,4 +39,5 @@ Phase 2 已建立独立项目工作台、协作契约和 Phase 3 任务清单。
 
 ## Next action
 
-在新的 Codex 项目线程中按 `PHASE3_TASKS.md` 从 Stage 0 开始；先建立基线、测试框架与 CLI help，不提前接真实飞书。
+按 `PHASE3_TASKS.md` 进入 Stage 1；先实现安全配置、Starter workspace、Skill 模板与
+`doctor`，不提前接真实飞书。

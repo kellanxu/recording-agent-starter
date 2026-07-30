@@ -1,0 +1,47 @@
+import { describe, expect, it } from 'vitest';
+
+import { helpText, runCli, type CliIO } from '../src/cli.js';
+import { ExitCode } from '../src/exit-codes.js';
+
+function capture(): { io: CliIO; stdout: string[]; stderr: string[] } {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+
+  return {
+    io: {
+      stdout: (message) => stdout.push(message),
+      stderr: (message) => stderr.push(message),
+    },
+    stdout,
+    stderr,
+  };
+}
+
+describe('CLI baseline', () => {
+  it('prints help and exits successfully', () => {
+    const output = capture();
+
+    expect(runCli(['--help'], output.io)).toBe(ExitCode.success);
+    expect(output.stdout).toEqual([helpText()]);
+    expect(output.stderr).toEqual([]);
+  });
+
+  it('rejects unknown commands with the usage exit code', () => {
+    const output = capture();
+
+    expect(runCli(['unexpected'], output.io)).toBe(ExitCode.usage);
+    expect(output.stdout).toEqual([]);
+    expect(output.stderr.join('\n')).toContain('Unknown command');
+  });
+
+  it.each(['init', 'doctor', 'sample', 'start', 'status', 'stop', 'catch-up'])(
+    'does not pretend that %s is implemented',
+    (command) => {
+      const output = capture();
+
+      expect(runCli([command], output.io)).toBe(ExitCode.unavailable);
+      expect(output.stderr.join('\n')).toContain('not implemented');
+      expect(output.stderr.join('\n')).toContain('No external action was taken');
+    },
+  );
+});

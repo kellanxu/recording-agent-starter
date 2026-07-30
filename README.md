@@ -2,7 +2,8 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前状态：Phase 2 工作台已建立，尚无可运行代码，也尚未发布。不要把本仓库当作已经可安装的产品。
+> 当前状态：Phase 3 Stage 0 脚手架已建立，但产品命令尚未实现，也尚未发布。
+> 不要把本仓库当作已经可安装的产品。
 
 ## 计划完成的 Loop
 
@@ -28,7 +29,8 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-以上是 V1 命令契约，不代表当前已经实现。
+以上是 V1 命令契约。当前只有 help 与稳定退出码；产品命令会明确返回 unavailable，
+不代表已经实现。
 
 ## V1 边界
 
@@ -48,4 +50,3 @@ recording-agent catch-up --days 1
 ## License
 
 MIT
-
