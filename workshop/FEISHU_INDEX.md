@@ -21,7 +21,10 @@
 |    2 | `STUDENT_HANDBOOK.md`     | 学员按真实命令完成闭环      |
 |    3 | `PRE_CLASS_CHECKLIST.md`  | 课前准备与权限核对          |
 |    4 | `INSTRUCTOR_CHECKLIST.md` | 讲师现场验收与失败恢复      |
-|    5 | `slides.md`               | 16 页 Slidev 演示源         |
+|    5 | `slides.md`               | 18 页 Slidev 演示源         |
+
+`EVENT_RUNBOOK.md` 是组局官内部执行总控，包含群运营、场地、角色、签到反馈与活动后复盘，
+不作为学员公开材料自动同步；若后续需要同步，必须先删除未填写占位符并单独确认范围。
 
 ## 4. 最小验证命令
 

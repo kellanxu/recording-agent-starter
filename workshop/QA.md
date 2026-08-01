@@ -1,6 +1,6 @@
 # Stage 8 Local Material QA
 
-Updated: 2026-07-30
+Updated: 2026-08-01
 
 ## Locked toolchain
 
@@ -19,11 +19,11 @@ DOMPurify `3.4.12` through an exact override. No `--force` or broad unsafe overr
 - Static output: repository-ignored `release/workshop-html/`.
 - `npm run export:pdf`: passed.
 - PDF output: `output/pdf/recording-agent-starter-workshop.pdf`.
-- PDF properties: 16 pages, 735.12 x 414 points, not encrypted, no embedded JavaScript.
+- PDF properties: 18 pages, 735.12 x 414 points, not encrypted, no embedded JavaScript.
 
 ## Visual review
 
-All 16 final PDF pages were rendered to PNG and reviewed individually at full size. The final
+All 18 final PDF pages were rendered to PNG and reviewed individually at full size. The final
 montage was also reviewed for pacing and consistency.
 
 Result:
@@ -34,6 +34,8 @@ Result:
 - no broken code blocks;
 - consistent title, body, spacing and color hierarchy;
 - all audience-facing claims trace back to repository truth sources in speaker notes.
+- the new “three real results” and “four before leaving” pages remain legible at full size and do
+  not clip their longest Chinese lines.
 
 ## Offline browser review
 
@@ -60,8 +62,9 @@ not affect navigation, rendering or presenter mode.
    The final build uses root-local assets and the documented local preview command; presenter mode
    then loaded without failed resources.
 3. Repository-wide Prettier changed Slidev page-frontmatter separators and expanded the PDF from
-   16 to 31 pages. `workshop/slides.md` is now excluded from Prettier; the final source has 15
-   page separators and exports exactly 16 pages.
+   16 to 31 pages. `workshop/slides.md` is now excluded from Prettier. The event-experience revision
+   intentionally adds two pages; the final source has 17 page separators and exports exactly 18
+   pages.
 
 ## Boundaries retained
 

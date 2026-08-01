@@ -31,6 +31,30 @@ class: text-left
 layout: default
 ---
 
+# 今天带走三个真实结果
+
+<div class="evidence-line">
+  <span>作品</span><div>在自己的 workspace 完成唯一安全 sample；绿灯后再挑战真实录音 Loop。</div>
+</div>
+<div class="evidence-line">
+  <span>连接</span><div>认识两位值得继续互助的伙伴，并说清下一次连接动作。</div>
+</div>
+<div class="evidence-line">
+  <span>行动</span><div>把未来 72 小时内的一项可检查动作发到活动群。</div>
+</div>
+
+<!--
+先让参与者知道：今天的价值不只有技术，还包括真实连接和继续行动。
+
+[Sources]
+- ./EVENT_RUNBOOK.md
+- ./MAIN_LECTURE.md
+-->
+
+---
+layout: default
+---
+
 # 录音的损耗，不发生在“没录到”
 
 <div class="big-number">3</div>
@@ -410,6 +434,36 @@ layout: default
 [Sources]
 - ../AGENTS.md
 - ./STUDENT_HANDBOOK.md
+-->
+
+---
+layout: cover
+class: text-left
+---
+
+<div class="eyebrow">Before You Leave</div>
+
+# 离场前，闭合四件事
+
+<div class="evidence-line">
+  <span>结果</span><div>我真实完成了什么，证据或准确阻塞在哪里。</div>
+</div>
+<div class="evidence-line">
+  <span>两个人</span><div>我认识了谁，活动后准备怎样继续连接。</div>
+</div>
+<div class="evidence-line">
+  <span>72 小时</span><div>我接下来要完成哪一项可检查动作。</div>
+</div>
+<div class="evidence-line">
+  <span>反馈</span><div>我已完成签到与 NPS，知道保证金的处理方式。</div>
+</div>
+
+<!--
+现场逐项确认，不把自由交流、口头说“回去再弄”和未填写反馈当成闭环。
+
+[Sources]
+- ./EVENT_RUNBOOK.md
+- ./INSTRUCTOR_CHECKLIST.md
 -->
 
 ---
