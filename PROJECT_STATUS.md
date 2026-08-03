@@ -4,15 +4,22 @@ Updated: 2026-08-03
 
 ## Current phase
 
-`v0.2.0-beta.1-prerelease-real-e2e-pending`
+`v0.2.0-beta.2-release-candidate-real-e2e-pending`
 
-`v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前 `v0.2.0-beta.1` 已改为
+`v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前 `v0.2.0-beta.2` 沿用
 一个飞书应用、一条现有 Bridge 长连接：Minutes Hook 复用 Bridge 内部 dispatcher，
-bot/user 身份隔离，不再启动第二个 `lark-cli event consume`。56 项测试、构建、隐私和
+bot/user 身份隔离，不再启动第二个 `lark-cli event consume`。58 项测试、构建、隐私和
 许可证审计、Hook 安装回滚、编译后 Bridge preload 兼容、候选 ZIP 隔离安装及打包后
 Hook 子进程链路均已通过。尚缺全新学员式 macOS profile 的真实飞书录音、确认回复与
 服务重启 E2E，因此只允许作为 Pre-release 供学员自愿测试，不得称为稳定版。维护者的正式 `codex` Bridge
 仍加载 `meeting-context-router` 原有 Hook，未被本轮安装、重启或改写。
+
+首位学员式检查暴露出的课前依赖缺口已在本地修复：课前预习现会明确安装官方
+`@larksuite/cli 1.0.81`、`lark-channel-bridge 0.6.4`，由每位学员扫码创建自己的
+`RecordingAgentCourse` Bridge profile，并启动 Bridge 服务。`doctor` 不再只看命令是否
+存在，还会检查飞书事件、妙记、OpenAPI、授权以及 Bridge profile/start/status 能力；
+因此误装无 scope 的 `lark-cli` npm 包或仍使用不含事件能力的旧版 CLI 时会直接给出升级
+提示。该修复已整理为 `v0.2.0-beta.2` 发布候选，等待从干净提交构建并发布 Pre-release。
 
 `v0.2.0-beta.1` 已于 2026-08-03 发布为 GitHub Pre-release：
 `https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.1`。远端下载
@@ -45,8 +52,10 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 
 ## v0.2.0 candidate evidence
 
-- 10 个测试文件、56 项测试通过。
-- `v0.2.0-beta.1` ZIP 从隔离 HOME 安装通过，生产依赖为 0。
+- 10 个测试文件、58 项测试通过。
+- 新增两项干净学员机回归：旧版 `lark-cli` 缺少事件能力时红灯；Bridge 未安装时输出可执行
+  的安装提示。
+- `v0.2.0-beta.2` 候选 ZIP 从隔离 HOME 安装通过，生产依赖为 0。
 - 打包后的 Hook 子进程链路完成一次记录和一次确认，事件重放未再次调用 provider。
 - Bridge Hook 重启失败时恢复原参数和服务；重复安装不重复重启。
 - 候选压缩包 173 个条目通过隐私与路径审计。

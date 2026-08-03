@@ -63,6 +63,38 @@ function commandDiagnostic(
   return { level: 'green', name, message: version };
 }
 
+function capabilityDiagnostic(
+  name: string,
+  command: string,
+  probes: readonly (readonly string[])[],
+  installHint: string,
+  runCommand: NonNullable<DoctorOptions['runCommand']>,
+): Diagnostic {
+  const version = runCommand(command, ['--version']);
+  if (version.error !== undefined || version.status !== 0) {
+    return {
+      level: 'yellow',
+      name,
+      message: `not checked because ${command} is not available on PATH; ${installHint}`,
+    };
+  }
+
+  const missing = probes.filter((args) => {
+    const result = runCommand(command, args);
+    return result.error !== undefined || result.status !== 0;
+  });
+  if (missing.length > 0) {
+    return {
+      level: 'red',
+      name,
+      message: `installed command lacks required capabilities (${missing
+        .map((args) => args.slice(0, -1).join(' '))
+        .join(', ')}); ${installHint}`,
+    };
+  }
+  return { level: 'green', name, message: 'required commands are available' };
+}
+
 export async function diagnose(
   workspaceRoot: string,
   options: DoctorOptions = {},
@@ -110,7 +142,34 @@ export async function diagnose(
 
   diagnostics.push(commandDiagnostic('codex', 'codex', runCommand));
   diagnostics.push(commandDiagnostic('bridge', 'lark-channel-bridge', runCommand));
+  diagnostics.push(
+    capabilityDiagnostic(
+      'bridge-capabilities',
+      'lark-channel-bridge',
+      [
+        ['profile', '--help'],
+        ['start', '--help'],
+        ['status', '--help'],
+      ],
+      'install the course-verified lark-channel-bridge from zarazhangrui/feishu-claude-code-bridge',
+      runCommand,
+    ),
+  );
   diagnostics.push(commandDiagnostic('lark-cli', 'lark-cli', runCommand));
+  diagnostics.push(
+    capabilityDiagnostic(
+      'lark-cli-capabilities',
+      'lark-cli',
+      [
+        ['event', '--help'],
+        ['minutes', '--help'],
+        ['api', '--help'],
+        ['auth', 'status', '--help'],
+      ],
+      'install or update the official @larksuite/cli package; do not install the unrelated unscoped lark-cli npm package',
+      runCommand,
+    ),
+  );
   diagnostics.push(
     config.confirmationTarget === undefined
       ? {

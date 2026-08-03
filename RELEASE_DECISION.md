@@ -1,11 +1,16 @@
-# v0.2.0-beta.1 Pre-release Decision
+# v0.2.0-beta.2 Pre-release Decision
 
 Decision date: 2026-08-03
 
 ## Decision
 
-`v0.2.0-beta.1` is approved as a public GitHub Pre-release for opt-in student testing. It must be
+`v0.2.0-beta.2` is approved as a public GitHub Pre-release for opt-in student testing. It must be
 marked as pre-release and must not be described as the stable `v0.2.0`.
+
+This beta is required because the first clean-student check found that beta.1 documentation could
+leave the Local Channel Bridge absent and could accept an old `lark-cli` that lacked realtime event
+commands. Beta.2 makes installation, student-owned QR profile binding and command capability probes
+explicit before the classroom project is initialized.
 
 The stable `v0.2.0` may be published only from a clean, tagged commit after all of these gates pass:
 

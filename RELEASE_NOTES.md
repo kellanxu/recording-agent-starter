@@ -1,7 +1,20 @@
-# Recording Agent Starter v0.2.0-beta.1
+# Recording Agent Starter v0.2.0-beta.2
 
-This pre-release changes the event architecture to one Feishu application and one existing Bridge
-WebSocket connection. It is available for opt-in student testing, but it is not the stable release.
+This pre-release fixes the clean-student pre-class installation path while retaining the beta.1
+single-connection architecture. It is available for opt-in student testing, but it is not the
+stable release.
+
+## Fixed since beta.1
+
+- The pre-class guide now installs the official `@larksuite/cli 1.0.81` and
+  `lark-channel-bridge 0.6.4` instead of assuming they already exist.
+- Every student creates or binds a student-owned `RecordingAgentCourse` Bridge profile by QR code;
+  no teacher profile, application credential or token is shared.
+- `doctor` now probes required Bridge `profile/start/status` and lark-cli
+  `event/minutes/api/auth status` capabilities instead of trusting command presence alone.
+- Old official lark-cli builds without realtime event support, the unrelated unscoped npm
+  `lark-cli` package and a missing Bridge now produce actionable diagnostics.
+- The macOS, student and organizer guides use the same locked versions and readiness criteria.
 
 ## Included
 
@@ -20,8 +33,8 @@ WebSocket connection. It is available for opt-in student testing, but it is not 
 Download both release files, keep them together, then verify:
 
 ```bash
-shasum -a 256 -c recording-agent-starter-0.2.0-beta.1.zip.sha256
-unzip recording-agent-starter-0.2.0-beta.1.zip
+shasum -a 256 -c recording-agent-starter-0.2.0-beta.2.zip.sha256
+unzip recording-agent-starter-0.2.0-beta.2.zip
 cd recording-agent-starter
 npm install --omit=dev
 npm install --global .

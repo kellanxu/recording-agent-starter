@@ -2,12 +2,21 @@
 
 用飞书妙记、Codex 和个人 Skill，把一条录音转化为本人持有、可追溯、可纠正的 Markdown Context。
 
-> 当前测试版本：`v0.2.0-beta.1`。它把录音事件合并进现有 Bridge 长连接，不再启动
+> 当前测试版本：`v0.2.0-beta.2`。它把录音事件合并进现有 Bridge 长连接，不再启动
 > 第二个飞书事件监听器。自动化门、隔离 ZIP 安装和打包后子进程链路已经通过；全新环境
 > 的真实飞书录音 E2E 尚待完成，因此它是供学员测试的 Pre-release，不是稳定版。
 
-[下载 v0.2.0-beta.1 Pre-release](https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.1)
+[下载 v0.2.0-beta.2 Pre-release](https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.2)
 。下载 ZIP 时请同时下载同名 `.sha256` 文件并先完成校验。
+
+真实飞书 Loop 还需要两个独立前置工具，Starter 不会把私人 Bridge 或飞书凭证打进公开包：
+
+- 官方 `@larksuite/cli`：课程验证 `1.0.81`，必须具备 `event`、`minutes`、`api`、`auth status` 能力；
+- [`lark-channel-bridge`](https://github.com/zarazhangrui/feishu-claude-code-bridge)：课程验证
+  `0.6.4`，每位使用者必须扫码创建或绑定本人持有的 PersonalAgent Profile。
+
+完整安装和干净电脑准备步骤见 [macOS 安装教程](docs/MACOS.md)。安全 sample 不使用 Bridge，
+但课前准备应完成 Bridge 安装与本人 Profile 绑定，把现场时间留给 Skill 个性化和真实录音。
 
 ## 计划完成的 Loop
 
@@ -35,7 +44,7 @@ recording-agent stop
 recording-agent catch-up --days 1
 ```
 
-以上命令均已实现。`v0.2.0-beta.1` 已通过隔离 workspace 和打包后进程级测试；初始化默认逐项询问
+以上命令均已实现。`v0.2.0-beta.2` 已通过隔离 workspace 和打包后进程级测试；初始化默认逐项询问
 Starter workspace、录音来源、分类体系、Markdown 入库位置和沉淀规则；也可显式传入
 参数：
 
@@ -87,7 +96,7 @@ Bridge 的同一条连接，并用同一个应用下相互隔离的 bot/user 身
 
 ## V1 边界
 
-- `v0.2.0-beta.1` 当前仅支持 macOS；Windows 暂停在离线 sample。
+- `v0.2.0-beta.2` 当前仅支持 macOS；Windows 暂停在离线 sample。
 - 一个飞书应用、一条 Bridge 长连接；不创建第二个事件消费者。
 - 每位使用者持有自己的飞书应用、录音和本地知识库。
 - 不要求 OpenAI API Key，但要求已安装并登录 Codex CLI。

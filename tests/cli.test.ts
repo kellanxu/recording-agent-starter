@@ -42,7 +42,7 @@ describe('CLI baseline', () => {
 
     expect(await runCli(['--help'], output.io)).toBe(ExitCode.success);
     expect(output.stdout).toEqual([helpText()]);
-    expect(output.stdout[0]).toContain('Recording Agent Starter 0.2.0-beta.1');
+    expect(output.stdout[0]).toContain('Recording Agent Starter 0.2.0-beta.2');
     expect(output.stdout[0]).toContain('one Feishu app and one Bridge connection');
     expect(output.stderr).toEqual([]);
   });

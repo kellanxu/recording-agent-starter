@@ -165,6 +165,66 @@ describe('doctor', () => {
     });
   });
 
+  it('rejects an installed lark-cli that lacks the event command required by the Loop', async () => {
+    const root = testRoot('old-lark-cli');
+    const workspaceRoot = join(root, 'workspace');
+    await initializeWorkspace({
+      workspaceRoot,
+      libraryRoot: join(root, 'library'),
+      source: '安全样本',
+      categories: ['默认'],
+      retentionRule: '保留证据',
+    });
+    const diagnostics = await diagnose(workspaceRoot, {
+      runCommand: (command, args) => {
+        if (command === 'lark-cli' && args[0] === '--version') {
+          return { status: 0, stdout: 'lark-cli version 1.0.0\n', stderr: '' };
+        }
+        if (command === 'lark-cli' && args[0] === 'event') {
+          return { status: 1, stdout: '', stderr: 'unknown command event' };
+        }
+        return { status: 0, stdout: `${command} capability ok\n`, stderr: '' };
+      },
+    });
+
+    expect(diagnostics).toContainEqual({
+      level: 'red',
+      name: 'lark-cli-capabilities',
+      message:
+        'installed command lacks required capabilities (event); install or update the official @larksuite/cli package; do not install the unrelated unscoped lark-cli npm package',
+    });
+  });
+
+  it('reports an actionable install hint when Bridge is absent from PATH', async () => {
+    const root = testRoot('missing-bridge');
+    const workspaceRoot = join(root, 'workspace');
+    await initializeWorkspace({
+      workspaceRoot,
+      libraryRoot: join(root, 'library'),
+      source: '安全样本',
+      categories: ['默认'],
+      retentionRule: '保留证据',
+    });
+    const diagnostics = await diagnose(workspaceRoot, {
+      runCommand: (command) =>
+        command === 'lark-channel-bridge'
+          ? {
+              status: null,
+              stdout: '',
+              stderr: '',
+              error: new Error('ENOENT'),
+            }
+          : { status: 0, stdout: `${command} capability ok\n`, stderr: '' },
+    });
+
+    expect(diagnostics).toContainEqual({
+      level: 'yellow',
+      name: 'bridge-capabilities',
+      message:
+        'not checked because lark-channel-bridge is not available on PATH; install the course-verified lark-channel-bridge from zarazhangrui/feishu-claude-code-bridge',
+    });
+  });
+
   it('can reach all green in live mode only when each external prerequisite verifies', async () => {
     const root = testRoot('live-doctor');
     const workspaceRoot = join(root, 'workspace');

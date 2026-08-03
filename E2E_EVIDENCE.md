@@ -2,6 +2,24 @@
 
 Updated: 2026-08-03
 
+## v0.2.0-beta.2 clean-student installation candidate
+
+Verified locally before publication without changing the maintainer's production Bridge:
+
+- 10 test files and 58 tests passed.
+- New regressions prove that an installed old lark-cli without `event` is RED and a missing Bridge
+  returns an actionable installation diagnostic.
+- The installed local official `lark-cli 1.0.81` passed `event`, `minutes`, `api` and `auth status`
+  command probes; `lark-channel-bridge 0.6.4` passed `profile`, `start` and `status` probes.
+- The candidate ZIP passed isolated installation with zero production dependencies, one stable
+  Markdown record after two samples, no unapproved external start and packaged Hook replay
+  deduplication.
+- Student-facing instructions now require a student-owned `RecordingAgentCourse` profile and never
+  reuse teacher credentials.
+
+The clean-profile real Feishu recording and confirmation/restart gate remains open, so beta.2 is
+still a Pre-release and not stable `v0.2.0`.
+
 ## v0.2.0-beta.1 single-connection pre-release
 
 Verified on the current development host without changing the maintainer's production Bridge:

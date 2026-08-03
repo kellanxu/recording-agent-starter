@@ -2,6 +2,12 @@
 
 Observed and revalidated on 2026-08-03:
 
+The classroom installation baseline is `lark-channel-bridge 0.6.4` plus the official
+`@larksuite/cli 1.0.81`. A higher installed version may be kept when the required command probes
+pass; a lower version is not rejected by number alone. The authoritative gate is availability of
+Bridge `profile/start/status` and lark-cli `event/minutes/api/auth status` commands. The unrelated
+unscoped npm package named `lark-cli` is not part of this project.
+
 | Component             | Project contract                   | Observed version         | v0.2.0 candidate status            |
 | --------------------- | ---------------------------------- | ------------------------ | ---------------------------------- |
 | macOS                 | Single-connection supported host   | Current development host | Package/process gates passed       |

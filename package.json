@@ -1,6 +1,6 @@
 {
   "name": "recording-agent-starter",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "private": true,
   "description": "A local-first starter that turns Feishu recordings into auditable Markdown records.",
   "type": "module",
@@ -35,8 +35,8 @@
     "privacy:scan": "node scripts/privacy-scan.mjs",
     "release:candidate": "npm run check && npm run build && node scripts/build-release.mjs",
     "release:build": "npm run check && npm run build && node scripts/build-release.mjs --final",
-    "release:verify": "node scripts/verify-release.mjs release/recording-agent-starter-0.2.0-beta.1.zip",
-    "release:verify:candidate": "node scripts/verify-release.mjs release/recording-agent-starter-0.2.0-beta.1-dev.zip",
+    "release:verify": "node scripts/verify-release.mjs release/recording-agent-starter-0.2.0-beta.2.zip",
+    "release:verify:candidate": "node scripts/verify-release.mjs release/recording-agent-starter-0.2.0-beta.2-dev.zip",
     "screenshots": "npm run build && node workshop/scripts/capture-public-screenshots.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
