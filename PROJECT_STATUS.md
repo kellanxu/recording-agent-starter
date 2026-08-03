@@ -4,7 +4,7 @@ Updated: 2026-08-03
 
 ## Current phase
 
-`v0.2.0-beta.2-release-candidate-real-e2e-pending`
+`v0.2.0-beta.2-prerelease-real-e2e-pending`
 
 `v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前 `v0.2.0-beta.2` 沿用
 一个飞书应用、一条现有 Bridge 长连接：Minutes Hook 复用 Bridge 内部 dispatcher，
@@ -19,7 +19,12 @@ Hook 子进程链路均已通过。尚缺全新学员式 macOS profile 的真实
 `RecordingAgentCourse` Bridge profile，并启动 Bridge 服务。`doctor` 不再只看命令是否
 存在，还会检查飞书事件、妙记、OpenAPI、授权以及 Bridge profile/start/status 能力；
 因此误装无 scope 的 `lark-cli` npm 包或仍使用不含事件能力的旧版 CLI 时会直接给出升级
-提示。该修复已整理为 `v0.2.0-beta.2` 发布候选，等待从干净提交构建并发布 Pre-release。
+提示。该修复已作为 `v0.2.0-beta.2` GitHub Pre-release 发布。
+
+`v0.2.0-beta.2` 已于 2026-08-03 发布：
+`https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.2`。tag 指向
+`3665cf03c5f3d56e54fc7190d36dd9c5e00ac70f`；远端 ZIP 下载回读校验通过，SHA-256 为
+`324bc4f5de75dd6b8ea115df9441514de2c1945f07869f7455410878280b6d9b`。
 
 `v0.2.0-beta.1` 已于 2026-08-03 发布为 GitHub Pre-release：
 `https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.1`。远端下载
@@ -62,6 +67,7 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - `lark-channel-bridge 0.6.4` 编译后 preload 兼容检查通过。
 - 正式 `codex` Bridge 只读核验仍运行原 `meeting-context-router` Hook。
 - 新架构真实飞书录音 E2E 尚未执行，不能标记为正式 Release。
+- `v0.2.0-beta.2` tag、Pre-release、ZIP 与 SHA-256 已发布并完成下载回读校验。
 - `v0.2.0-beta.1` tag、Pre-release、ZIP 与 SHA-256 已发布并完成下载回读校验。
 
 ## v0.1.0 historical evidence

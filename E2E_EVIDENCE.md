@@ -20,6 +20,13 @@ Verified locally before publication without changing the maintainer's production
 The clean-profile real Feishu recording and confirmation/restart gate remains open, so beta.2 is
 still a Pre-release and not stable `v0.2.0`.
 
+GitHub Pre-release publication was verified on 2026-08-03:
+
+- tag `v0.2.0-beta.2` resolves to commit `3665cf03c5f3d56e54fc7190d36dd9c5e00ac70f`;
+- GitHub marks the release as Pre-release and exposes both the ZIP and adjacent SHA-256 asset;
+- the downloaded ZIP passed the adjacent checksum with SHA-256
+  `324bc4f5de75dd6b8ea115df9441514de2c1945f07869f7455410878280b6d9b`.
+
 ## v0.2.0-beta.1 single-connection pre-release
 
 Verified on the current development host without changing the maintainer's production Bridge:
