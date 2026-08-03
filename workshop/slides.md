@@ -47,8 +47,8 @@ layout: default
 先让参与者知道：今天的价值不只有技术，还包括真实连接和继续行动。
 
 [Sources]
-- ./EVENT_RUNBOOK.md
-- ./MAIN_LECTURE.md
+- ./活动执行总控.md
+- ./录音Agent现场主讲义.md
 -->
 
 ---
@@ -218,7 +218,7 @@ layout: default
 
 [Sources]
 - ../docs/MACOS.md
-- ./PRE_CLASS_CHECKLIST.md
+- ./组织方课前检查清单.md
 -->
 
 ---
@@ -433,7 +433,7 @@ layout: default
 
 [Sources]
 - ../AGENTS.md
-- ./STUDENT_HANDBOOK.md
+- ./学员实操手册.md
 -->
 
 ---
@@ -462,8 +462,8 @@ class: text-left
 现场逐项确认，不把自由交流、口头说“回去再弄”和未填写反馈当成闭环。
 
 [Sources]
-- ./EVENT_RUNBOOK.md
-- ./INSTRUCTOR_CHECKLIST.md
+- ./活动执行总控.md
+- ./讲师现场执行清单.md
 -->
 
 ---
