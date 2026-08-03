@@ -20,7 +20,7 @@
 
 ## 讲师准备
 
-- [ ] 只有 `v0.2.0` 全部发布门通过后，才使用学员将拿到的同一 Release ZIP 与 SHA-256。
+- [ ] 测试学员使用同一 `v0.2.0-beta.1` Pre-release ZIP 与 SHA-256，并知晓它不是稳定版。
 - [ ] 在隔离目录校验 ZIP、安装、CLI help、`doctor` 和 `sample`。
 - [ ] 确认正式包来自公开 Release，不包含私人配置、真实录音或 Transcript。
 - [ ] 准备断网可打开的 Slidev 静态 HTML 和 PDF 兜底。

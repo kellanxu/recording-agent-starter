@@ -27,7 +27,7 @@ import { runRuntime } from './runtime.js';
 import { runSample } from './sample.js';
 import { publicServiceStatus, readServiceState } from './service-state.js';
 
-const VERSION = '0.2.0';
+const VERSION = '0.2.0-beta.1';
 const COMMANDS = [
   'init',
   'doctor',
@@ -445,7 +445,7 @@ Options:
   -v, --version        Show version
 
 Current milestone:
-  v0.2.0 uses one Feishu app and one Bridge connection on macOS.
+  v0.2.0-beta.1 uses one Feishu app and one Bridge connection on macOS.
   Run doctor --live in your own environment before enabling external writes.`;
 }
 

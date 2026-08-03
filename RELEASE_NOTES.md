@@ -1,7 +1,7 @@
-# Recording Agent Starter v0.2.0 Candidate
+# Recording Agent Starter v0.2.0-beta.1
 
-This candidate changes the event architecture to one Feishu application and one existing Bridge
-WebSocket connection. It is not yet the student release.
+This pre-release changes the event architecture to one Feishu application and one existing Bridge
+WebSocket connection. It is available for opt-in student testing, but it is not the stable release.
 
 ## Included
 
@@ -20,16 +20,16 @@ WebSocket connection. It is not yet the student release.
 Download both release files, keep them together, then verify:
 
 ```bash
-shasum -a 256 -c recording-agent-starter-0.2.0-dev.zip.sha256
-unzip recording-agent-starter-0.2.0-dev.zip
+shasum -a 256 -c recording-agent-starter-0.2.0-beta.1.zip.sha256
+unzip recording-agent-starter-0.2.0-beta.1.zip
 cd recording-agent-starter
 npm install --omit=dev
 npm install --global .
 recording-agent --version
 ```
 
-This development archive is for isolated maintainer verification. Do not distribute it as a final
-student package until the real clean-profile gate in `RELEASE_DECISION.md` passes.
+This archive is a Pre-release for voluntary testing. Do not present it as the stable student package
+until the real clean-profile gate in `RELEASE_DECISION.md` passes.
 
 ## Safety
 

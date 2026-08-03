@@ -1,7 +1,6 @@
 # macOS 安装教程
 
-> 本教程对应 `v0.2.0` 单连接架构。正式 Release 尚未发布；当前候选包只用于讲师隔离
-> 验证，不能直接发给学员冒充正式版。
+> 本教程对应 `v0.2.0-beta.1` 单连接架构。它是供自愿测试的 Pre-release，不是稳定版。
 
 ## 1. 检查前置条件
 
@@ -20,8 +19,8 @@ Markdown 库；不要共享密钥或机器人。
 ## 2. 校验并解压 ZIP
 
 ```bash
-shasum -a 256 -c recording-agent-starter-0.2.0.zip.sha256
-unzip recording-agent-starter-0.2.0.zip
+shasum -a 256 -c recording-agent-starter-0.2.0-beta.1.zip.sha256
+unzip recording-agent-starter-0.2.0-beta.1.zip
 cd recording-agent-starter
 ```
 

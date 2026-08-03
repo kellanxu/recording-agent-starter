@@ -4,14 +4,14 @@ Updated: 2026-08-03
 
 ## Current phase
 
-`v0.2.0-single-connection-candidate-real-e2e-pending`
+`v0.2.0-beta.1-prerelease-real-e2e-pending`
 
-`v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前本地 `v0.2.0-dev` 已改为
+`v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前 `v0.2.0-beta.1` 已改为
 一个飞书应用、一条现有 Bridge 长连接：Minutes Hook 复用 Bridge 内部 dispatcher，
 bot/user 身份隔离，不再启动第二个 `lark-cli event consume`。56 项测试、构建、隐私和
 许可证审计、Hook 安装回滚、编译后 Bridge preload 兼容、候选 ZIP 隔离安装及打包后
 Hook 子进程链路均已通过。尚缺全新学员式 macOS profile 的真实飞书录音、确认回复与
-服务重启 E2E，因此候选包不得作为正式学员 Release 发布。维护者的正式 `codex` Bridge
+服务重启 E2E，因此只允许作为 Pre-release 供学员自愿测试，不得称为稳定版。维护者的正式 `codex` Bridge
 仍加载 `meeting-context-router` 原有 Hook，未被本轮安装、重启或改写。
 
 以下为 `v0.1.0` 历史完成背景：Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的
@@ -42,7 +42,7 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 ## v0.2.0 candidate evidence
 
 - 10 个测试文件、56 项测试通过。
-- `v0.2.0-dev` ZIP 从隔离 HOME 安装通过，生产依赖为 0。
+- `v0.2.0-beta.1` ZIP 从隔离 HOME 安装通过，生产依赖为 0。
 - 打包后的 Hook 子进程链路完成一次记录和一次确认，事件重放未再次调用 provider。
 - Bridge Hook 重启失败时恢复原参数和服务；重复安装不重复重启。
 - 候选压缩包 173 个条目通过隐私与路径审计。

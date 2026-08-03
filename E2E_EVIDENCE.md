@@ -2,7 +2,7 @@
 
 Updated: 2026-08-03
 
-## v0.2.0 single-connection candidate
+## v0.2.0-beta.1 single-connection pre-release
 
 Verified on the current development host without changing the maintainer's production Bridge:
 
@@ -10,7 +10,7 @@ Verified on the current development host without changing the maintainer's produ
   Hook installation idempotency and failed-restart rollback.
 - Format, lint, typecheck, build and privacy scan passed; 100 repository files were scanned.
 - The compiled preload loaded successfully with the installed `lark-channel-bridge 0.6.4` CLI.
-- A `v0.2.0-dev` ZIP was installed under an isolated home with zero production dependencies.
+- A `v0.2.0-beta.1` ZIP was installed under an isolated home with zero production dependencies.
 - From the extracted ZIP, one Hook dispatch spawned the packaged CLI, fetched a safe fake
   Transcript, ran a safe fake Codex provider, wrote one live-format Markdown record and sent one
   fake confirmation. Replaying the event produced `duplicate_event` and did not call either
@@ -25,7 +25,7 @@ Not yet verified for `v0.2.0`:
   Hook;
 - post-install real confirmation reply and service-restart recovery in that clean profile.
 
-Therefore the current archive is a development candidate, not a final student Release. The
+Therefore the current archive is a student-testing Pre-release, not the stable Release. The
 production `codex` profile was intentionally left untouched.
 
 ## Historical v0.1.0 evidence

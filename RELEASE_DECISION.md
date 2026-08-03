@@ -1,11 +1,13 @@
-# v0.2.0 Release Decision
+# v0.2.0-beta.1 Pre-release Decision
 
 Decision date: 2026-08-03
 
 ## Decision
 
-`v0.2.0` is not yet approved for public or student release. It may be published only from a clean,
-tagged commit after all of these gates pass:
+`v0.2.0-beta.1` is approved as a public GitHub Pre-release for opt-in student testing. It must be
+marked as pre-release and must not be described as the stable `v0.2.0`.
+
+The stable `v0.2.0` may be published only from a clean, tagged commit after all of these gates pass:
 
 - complete command matrix and privacy scan;
 - archive audit and isolated ZIP installation;
@@ -14,8 +16,9 @@ tagged commit after all of these gates pass:
   connection;
 - confirmation reply and persisted-state recovery after service restart.
 
-The current `v0.2.0-dev` ZIP has passed the first three items only. The maintainer's production
-Bridge was intentionally not changed to manufacture the final evidence.
+The beta ZIP has passed the first three items. The maintainer's production Bridge was intentionally
+not changed to manufacture the final evidence. This limitation must remain visible in the GitHub
+Pre-release notes.
 
 ## Dependency risk resolution retained
 
