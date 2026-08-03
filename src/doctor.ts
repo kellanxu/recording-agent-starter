@@ -2,10 +2,13 @@ import { access, readFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+import { bridgeHookInstalled } from './bridge-hook-install.js';
 import { bridgeProfileEnvironment } from './bridge-profile.js';
 import { bridgeReplyLinked } from './bridge-reply.js';
 import { readMachineConfig } from './config.js';
+import { minutesSubscriptionReady } from './minutes-subscription.js';
 
 export type DiagnosticLevel = 'green' | 'yellow' | 'red';
 
@@ -15,9 +18,17 @@ export interface Diagnostic {
   message: string;
 }
 
+const REQUIRED_MINUTES_USER_SCOPES = [
+  'minutes:minutes.basic:read',
+  'minutes:minutes.search:read',
+  'minutes:minutes.media:export',
+] as const;
+
 export interface DoctorOptions {
   live?: boolean;
   isBridgeReplyLinked?: (workspaceRoot: string) => Promise<boolean>;
+  isBridgeHookInstalled?: (profile: string, hookEntry: string) => Promise<boolean>;
+  isMinutesSubscriptionReady?: (workspaceRoot: string) => Promise<boolean>;
   runCommand?: (
     command: string,
     args: readonly string[],
@@ -131,6 +142,28 @@ export async function diagnose(
   }
   if (options.live === true) {
     diagnostics.push(...liveDiagnostics(config.bridgeProfile, runCommand));
+    const hookEntry = fileURLToPath(new URL('./bridge-hook.js', import.meta.url));
+    const hookReady = await (options.isBridgeHookInstalled ?? bridgeHookInstalled)(
+      config.bridgeProfile,
+      hookEntry,
+    );
+    diagnostics.push({
+      level: hookReady ? 'green' : 'red',
+      name: 'bridge-minutes-hook',
+      message: hookReady
+        ? 'same-connection Minutes hook is installed'
+        : 'not installed; start will patch and restart the configured Bridge service',
+    });
+    const subscriptionReady = await (
+      options.isMinutesSubscriptionReady ?? minutesSubscriptionReady
+    )(workspaceRoot);
+    diagnostics.push({
+      level: subscriptionReady ? 'green' : 'red',
+      name: 'feishu-minutes-subscription',
+      message: subscriptionReady
+        ? 'subscription acknowledgement is recorded'
+        : 'no successful subscription acknowledgement is recorded',
+    });
   } else {
     diagnostics.push({
       level: 'yellow',
@@ -148,27 +181,57 @@ function liveDiagnostics(
 ): Diagnostic[] {
   const codex = runCommand('codex', ['login', 'status']);
   const bridge = runCommand('lark-channel-bridge', ['profile', 'list']);
-  const lark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify']);
-  const bridgeLark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify'], {
-    env: bridgeProfileEnvironment(bridgeProfile),
+  const bridgeRuntime = runCommand('lark-channel-bridge', ['status', '--profile', bridgeProfile]);
+  let lark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify'], {
+    env: bridgeProfileEnvironment(bridgeProfile, process.env, undefined, 'user'),
   });
-  let larkReady = false;
-  let bridgeBotReady = false;
-  try {
-    const status = JSON.parse(lark.stdout) as {
-      verified?: boolean;
-      identities?: { user?: { status?: string; tokenStatus?: string } };
+  const bridgeLark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify'], {
+    env: bridgeProfileEnvironment(bridgeProfile, process.env, undefined, 'bot'),
+  });
+  type UserAuthStatus = {
+    appId?: string;
+    verified?: boolean;
+    identities?: {
+      user?: { status?: string; tokenStatus?: string; scope?: string | string[] };
     };
-    larkReady =
-      lark.status === 0 &&
-      status.verified === true &&
-      status.identities?.user?.status === 'ready' &&
-      status.identities.user.tokenStatus === 'valid';
-  } catch {
-    // Malformed output keeps the default not-ready state.
+  };
+  const parseUserAuth = (
+    result: ReturnType<NonNullable<DoctorOptions['runCommand']>>,
+  ): UserAuthStatus | undefined => {
+    try {
+      return JSON.parse(result.stdout) as UserAuthStatus;
+    } catch {
+      return undefined;
+    }
+  };
+  let userAuth = parseUserAuth(lark);
+  if (
+    lark.status === 0 &&
+    (userAuth?.verified !== true ||
+      userAuth.identities?.user?.status !== 'ready' ||
+      userAuth.identities.user.tokenStatus !== 'valid')
+  ) {
+    lark = runCommand('lark-cli', ['auth', 'status', '--json', '--verify'], {
+      env: bridgeProfileEnvironment(bridgeProfile, process.env, undefined, 'user'),
+    });
+    userAuth = parseUserAuth(lark);
   }
+  let bridgeBotReady = false;
+  let bridgeAppId: string | undefined;
+  const rawScopes = userAuth?.identities?.user?.scope;
+  const grantedScopes = new Set(
+    (Array.isArray(rawScopes) ? rawScopes : (rawScopes ?? '').split(/[\s,]+/u)).filter(Boolean),
+  );
+  const missingScopes = REQUIRED_MINUTES_USER_SCOPES.filter((scope) => !grantedScopes.has(scope));
+  const userTokenReady =
+    lark.status === 0 &&
+    userAuth?.verified === true &&
+    userAuth.identities?.user?.status === 'ready' &&
+    userAuth.identities.user.tokenStatus === 'valid';
+  const larkReady = userTokenReady && missingScopes.length === 0;
   try {
     const status = JSON.parse(bridgeLark.stdout) as {
+      appId?: string;
       verified?: boolean;
       identities?: { bot?: { status?: string } };
     };
@@ -176,6 +239,7 @@ function liveDiagnostics(
       bridgeLark.status === 0 &&
       status.verified === true &&
       status.identities?.bot?.status === 'ready';
+    bridgeAppId = status.appId;
   } catch {
     // Malformed output keeps the default not-ready state.
   }
@@ -185,6 +249,10 @@ function liveDiagnostics(
       .split('\n')
       .slice(1)
       .some((line) => line.trim().split(/\s+/).includes(bridgeProfile));
+  const sameApplication =
+    typeof userAuth?.appId === 'string' &&
+    typeof bridgeAppId === 'string' &&
+    userAuth.appId === bridgeAppId;
   return [
     {
       level: codex.status === 0 ? 'green' : 'red',
@@ -199,12 +267,28 @@ function liveDiagnostics(
     {
       level: larkReady ? 'green' : 'red',
       name: 'feishu-user-auth',
-      message: larkReady ? 'verified and valid' : 'not ready or invalid',
+      message: larkReady
+        ? 'verified, valid and required Minutes scopes granted'
+        : userTokenReady && missingScopes.length > 0
+          ? `missing required scopes: ${missingScopes.join(', ')}`
+          : 'not ready or invalid',
+    },
+    {
+      level: bridgeRuntime.status === 0 ? 'green' : 'red',
+      name: 'bridge-runtime',
+      message: bridgeRuntime.status === 0 ? 'configured Bridge service is running' : 'not running',
     },
     {
       level: bridgeBotReady ? 'green' : 'red',
       name: 'feishu-bridge-bot-auth',
       message: bridgeBotReady ? 'verified and ready' : 'not ready or invalid',
+    },
+    {
+      level: sameApplication ? 'green' : 'red',
+      name: 'feishu-single-app',
+      message: sameApplication
+        ? 'Bridge bot and Minutes user identities belong to the same application'
+        : 'Bridge bot and Minutes user identities do not resolve to the same application',
     },
   ];
 }

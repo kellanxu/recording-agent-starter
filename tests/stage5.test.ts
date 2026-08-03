@@ -55,14 +55,13 @@ describe('service state', () => {
   it('persists a redacted status with restricted permissions', async () => {
     const root = testRoot('state');
     const state: ServiceState = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       status: 'running',
       pid: 12345,
       platform: 'darwin',
       startedAt: '2026-07-30T00:00:00.000Z',
       updatedAt: '2026-07-30T00:00:01.000Z',
-      minuteConsumerReady: true,
-      imConsumerReady: true,
+      retryWorkerReady: true,
       processedCount: 2,
       pendingCount: 1,
       failedCount: 0,
@@ -77,14 +76,13 @@ describe('service state', () => {
   it('allows concurrent atomic state writes without temporary-path collisions', async () => {
     const root = testRoot('concurrent-state');
     const states = Array.from({ length: 20 }, (_, index): ServiceState => ({
-      schemaVersion: 1,
+      schemaVersion: 2,
       status: 'running',
       pid: 12000 + index,
       platform: 'darwin',
       startedAt: '2026-07-30T00:00:00.000Z',
       updatedAt: `2026-07-30T00:00:${String(index).padStart(2, '0')}.000Z`,
-      minuteConsumerReady: true,
-      imConsumerReady: true,
+      retryWorkerReady: true,
       processedCount: index,
       pendingCount: 0,
       failedCount: 0,

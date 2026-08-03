@@ -29,7 +29,9 @@ try {
       encoding: 'utf8',
     }),
   );
-  const tarballName = packResult[0]?.filename;
+  const tarballName = Array.isArray(packResult)
+    ? packResult[0]?.filename
+    : Object.values(packResult)[0]?.filename;
   if (typeof tarballName !== 'string') throw new Error('npm pack did not return a tarball name');
   const tarballPath = join(buildDirectory, tarballName);
   execFileSync('tar', ['-xzf', tarballPath, '-C', buildDirectory]);

@@ -4,14 +4,13 @@ import { join } from 'node:path';
 import { writeFileAtomic } from './atomic-file.js';
 
 export interface ServiceState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   status: 'starting' | 'running' | 'stopping' | 'stopped' | 'failed';
   pid: number;
   platform: NodeJS.Platform;
   startedAt: string;
   updatedAt: string;
-  minuteConsumerReady: boolean;
-  imConsumerReady: boolean;
+  retryWorkerReady: boolean;
   processedCount: number;
   pendingCount: number;
   failedCount: number;
@@ -32,7 +31,7 @@ export async function readServiceState(workspaceRoot: string): Promise<ServiceSt
       await readFile(serviceStatePath(workspaceRoot), 'utf8'),
     ) as ServiceState;
     if (
-      parsed.schemaVersion !== 1 ||
+      parsed.schemaVersion !== 2 ||
       typeof parsed.pid !== 'number' ||
       typeof parsed.status !== 'string' ||
       typeof parsed.updatedAt !== 'string'
@@ -55,9 +54,8 @@ export function publicServiceStatus(state: ServiceState | undefined): Record<str
     platform: state.platform,
     startedAt: state.startedAt,
     updatedAt: state.updatedAt,
-    consumers: {
-      minutes: state.minuteConsumerReady,
-      confirmations: state.imConsumerReady,
+    components: {
+      retryWorker: state.retryWorkerReady,
     },
     counts: {
       processed: state.processedCount,

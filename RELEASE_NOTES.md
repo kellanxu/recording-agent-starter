@@ -1,34 +1,35 @@
-# Recording Agent Starter v0.1.0
+# Recording Agent Starter v0.2.0 Candidate
 
-The first public, local-first Starter for turning a user-owned Feishu recording into one auditable
-Markdown record and one human confirmation loop.
+This candidate changes the event architecture to one Feishu application and one existing Bridge
+WebSocket connection. It is not yet the student release.
 
 ## Included
 
 - Safe `init`, green/yellow/red `doctor` and idempotent offline `sample`.
-- Realtime Minutes event ingestion with event/token deduplication and bounded retry.
+- Realtime Minutes handling through a Bridge preload Hook, without a second event consumer.
+- Same-app bot/user identity isolation and a direct Minutes subscription acknowledgement.
+- Event/token deduplication, bounded retry and a once-per-day catch-up safety net.
 - Codex-backed structured processing into one atomic Markdown main record.
 - One transcript-free confirmation sheet and exact confirm/modify/classify replies through the
   existing Bridge/Codex path.
-- macOS LaunchAgent lifecycle and Windows foreground beta.
-- Redacted real E2E evidence, original public-safe screenshots, macOS/Windows guides and complete
-  Slidev workshop sources.
+- macOS Hook installation with idempotent restart and original-service rollback.
+- Packaged child-process verification from Hook dispatch through Markdown and confirmation.
 
-## Install
+## Candidate verification
 
 Download both release files, keep them together, then verify:
 
 ```bash
-shasum -a 256 -c recording-agent-starter-0.1.0.zip.sha256
-unzip recording-agent-starter-0.1.0.zip
+shasum -a 256 -c recording-agent-starter-0.2.0-dev.zip.sha256
+unzip recording-agent-starter-0.2.0-dev.zip
 cd recording-agent-starter
 npm install --omit=dev
 npm install --global .
 recording-agent --version
 ```
 
-Read `docs/MACOS.md` before enabling external writes. Every user must use their own Feishu app,
-authorization, private confirmation target and local Markdown library.
+This development archive is for isolated maintainer verification. Do not distribute it as a final
+student package until the real clean-profile gate in `RELEASE_DECISION.md` passes.
 
 ## Safety
 

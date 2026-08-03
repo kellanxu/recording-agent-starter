@@ -1,6 +1,37 @@
 # E2E Evidence
 
-Updated: 2026-07-30
+Updated: 2026-08-03
+
+## v0.2.0 single-connection candidate
+
+Verified on the current development host without changing the maintainer's production Bridge:
+
+- 10 test files and 56 tests passed, including concurrent deduplication, same-app identity routing,
+  Hook installation idempotency and failed-restart rollback.
+- Format, lint, typecheck, build and privacy scan passed; 100 repository files were scanned.
+- The compiled preload loaded successfully with the installed `lark-channel-bridge 0.6.4` CLI.
+- A `v0.2.0-dev` ZIP was installed under an isolated home with zero production dependencies.
+- From the extracted ZIP, one Hook dispatch spawned the packaged CLI, fetched a safe fake
+  Transcript, ran a safe fake Codex provider, wrote one live-format Markdown record and sent one
+  fake confirmation. Replaying the event produced `duplicate_event` and did not call either
+  provider again.
+- A direct Minutes subscription request passed `lark-cli` dry-run under the isolated user identity.
+- Starting without `--confirm-external-writes` created no LaunchAgent; clean-home live doctor
+  correctly returned RED instead of claiming authorization.
+
+Not yet verified for `v0.2.0`:
+
+- a new safe real Feishu recording on a clean student-like app/profile using the generic packaged
+  Hook;
+- post-install real confirmation reply and service-restart recovery in that clean profile.
+
+Therefore the current archive is a development candidate, not a final student Release. The
+production `codex` profile was intentionally left untouched.
+
+## Historical v0.1.0 evidence
+
+The evidence below belongs to the earlier `v0.1.0` event-consumer architecture. It remains as
+history and must not be presented as proof that `v0.2.0` has passed its external gate.
 
 ## Automated baseline
 

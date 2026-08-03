@@ -5,6 +5,7 @@ export function bridgeProfileEnvironment(
   profile: string,
   baseEnvironment: NodeJS.ProcessEnv = process.env,
   channelHome = baseEnvironment.LARK_CHANNEL_HOME ?? join(homedir(), '.lark-channel'),
+  identity: 'bot' | 'user' = 'bot',
 ): NodeJS.ProcessEnv {
   const normalized = profile.trim();
   if (
@@ -22,7 +23,7 @@ export function bridgeProfileEnvironment(
     LARK_CHANNEL_HOME: channelHome,
     LARK_CHANNEL_PROFILE: normalized,
     LARK_CHANNEL_CONFIG: join(profileRoot, 'lark-cli-source', 'config.json'),
-    LARKSUITE_CLI_CONFIG_DIR: join(profileRoot, 'lark-cli'),
+    LARKSUITE_CLI_CONFIG_DIR: join(profileRoot, identity === 'bot' ? 'lark-cli' : 'lark-cli-user'),
     LARKSUITE_CLI_NO_UPDATE_NOTIFIER: '1',
     LARKSUITE_CLI_NO_SKILLS_NOTIFIER: '1',
   };

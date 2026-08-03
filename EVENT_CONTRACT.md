@@ -1,36 +1,45 @@
 # Feishu Minutes Event Contract
 
-Verified locally on 2026-07-30 with `lark-cli 1.0.68`:
+Revalidated locally on 2026-08-03 with `lark-cli 1.0.81` and
+`lark-channel-bridge 0.6.4`.
 
 ```bash
 lark-cli event schema minutes.minute.generated_v1 --json
 ```
 
-The consumer contract is a flat NDJSON object:
+The Feishu application has one WebSocket connection owned by the existing Bridge. Starter patches
+the Bridge's internal dispatcher with one additional handler for
+`minutes.minute.generated_v1`; it does not run `lark-cli event consume` and therefore does not
+create a second event listener.
 
-| Field           | Meaning                                          |
-| --------------- | ------------------------------------------------ |
-| `type`          | Always `minutes.minute.generated_v1`             |
-| `event_id`      | Globally unique event identifier                 |
-| `timestamp`     | Delivery time as a millisecond timestamp string  |
-| `minute_token`  | Stable Minutes identifier                        |
-| `title`         | Enriched title; may be empty if enrichment fails |
-| `minute_source` | Optional source metadata                         |
+The Hook allow-lists the raw event into this flat object before crossing the child-process boundary:
 
-The runtime starts one user-authenticated consumer:
+| Field          | Meaning                                          |
+| -------------- | ------------------------------------------------ |
+| `type`         | Always `minutes.minute.generated_v1`             |
+| `event_id`     | Globally unique event identifier                 |
+| `timestamp`    | Delivery time as a millisecond timestamp string  |
+| `minute_token` | Stable Minutes identifier                        |
+| `title`        | Enriched title; may be empty if enrichment fails |
+| `title`        | Optional title                                   |
 
-```bash
-lark-cli event consume minutes.minute.generated_v1 --as user
-```
+The same application uses two isolated local identities:
 
-It waits for the exact stderr ready marker before considering the stream ready:
+- bot identity: existing Bridge messages and confirmation sends;
+- user identity: Minutes subscription, search and Transcript retrieval.
+
+They must resolve to the same Feishu application. `doctor --live` fails when they do not.
+
+`start` registers the Minutes event subscription with the user identity through:
 
 ```text
-[event] ready event_key=minutes.minute.generated_v1
+POST /open-apis/minutes/v1/minutes/subscription
+event_type = minutes.minute.generated_v1
 ```
 
-Events are read from stdout as NDJSON. Shutdown closes stdin so the CLI can unsubscribe cleanly;
-the Starter never uses `kill -9`.
+The acknowledgement stored locally contains only event type, profile name and timestamp. Raw event
+payloads and minute tokens are not written to the Hook log. The sanitized event is sent to the
+packaged CLI over stdin, never as a process argument.
 
 Transcript retrieval is a separate read:
 
@@ -47,5 +56,5 @@ lark-cli minutes +detail \
 The output directory is relative to the Starter workspace. The transcript file returned by the CLI
 must resolve inside that workspace or it is rejected.
 
-This document records a verified interface contract, not a claim that live authorization or a real
-recording event has passed end to end.
+Event ID and minute token are both deduplicated before Transcript retrieval. A daily one-day catch-up
+is a leak-recovery path, not the primary trigger and not a 15-minute scan.

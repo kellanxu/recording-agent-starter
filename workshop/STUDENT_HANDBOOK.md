@@ -15,8 +15,9 @@
 
 ## 当前发布状态
 
-`v0.1.0` 已通过维护者的真实 E2E 与独立发布门。课前只从公开 GitHub Release 下载
-ZIP 和同名 SHA-256，校验通过后使用；不要使用聊天附件或来源不明的转存包。
+`v0.2.0-dev` 已通过自动化、隔离 ZIP 和打包后进程链路，但还没有通过全新环境的真实
+飞书录音 E2E。讲师完成发布门之前，不向学员分发候选包，也不把旧 `v0.1.0` 的真实
+证据挪作新架构证据。
 
 ## 安装前检查
 
@@ -71,7 +72,8 @@ recording-agent sample --workspace /absolute/path/to/workspace
 recording-agent doctor --workspace /absolute/path/to/workspace --live
 ```
 
-只有全部为 GREEN，且你已核对确认目标和 bot 身份，才执行：
+首次启动前，Codex、Bridge、user/bot 身份和“同一应用”必须为 GREEN；Hook 与订阅尚未
+安装时为 RED 是正常的。核对确认目标和 bot 身份后才执行：
 
 ```bash
 recording-agent start \
@@ -79,7 +81,7 @@ recording-agent start \
   --confirm-external-writes
 ```
 
-状态与停止：
+启动后再跑一次 `doctor --live`，此时必须全部 GREEN。状态与停止：
 
 ```bash
 recording-agent status --workspace /absolute/path/to/workspace

@@ -25,6 +25,10 @@ export function renderMainRecord(
     output.candidateActions.length === 0
       ? candidateAction({})
       : output.candidateActions.map(candidateAction).join('\n');
+  const creationAudit =
+    input.source.kind === 'offline-sample'
+      ? '创建离线样本主记录；尚未发送飞书确认单。'
+      : '根据飞书妙记创建主记录；尚待本人确认。';
 
   return `---
 recording_id: ${yamlString(input.recordingId)}
@@ -60,6 +64,6 @@ ${actions}
 
 ## 审计
 
-- ${createdAt} 创建离线样本主记录；尚未发送飞书确认单。
+- ${createdAt} ${creationAudit}
 `;
 }

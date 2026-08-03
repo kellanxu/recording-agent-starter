@@ -2,8 +2,10 @@
 
 ```mermaid
 flowchart LR
-  A["飞书妙记生成"] --> B["事件登记<br/>event_id + minute_token"]
-  B --> C{"Transcript 就绪？"}
+  A["同一个飞书应用"] --> B["同一条 Bridge 长连接"]
+  B --> C0["Minutes Hook<br/>事件触发"]
+  C0 --> B0["事件登记<br/>event_id + minute_token"]
+  B0 --> C{"Transcript 就绪？"}
   C -- "否" --> D["只重试当前 token<br/>指数退避"]
   D --> C
   C -- "是" --> E["Codex + 个人录音 Skill"]

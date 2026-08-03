@@ -5,24 +5,29 @@ import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
-import { bridgeReplyLinked, linkBridgeReply } from './bridge-reply.js';
+import { bridgeReplyLinked, linkBridgeReply, setBridgeEventEnabled } from './bridge-reply.js';
+import { installBridgeHook } from './bridge-hook-install.js';
+import { bridgeProfileEnvironment } from './bridge-profile.js';
 import { CodexCliRunner } from './codex-cli-runner.js';
 import { ConfirmationService } from './confirmation.js';
 import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane } from './control-plane.js';
+import { ControlStateStore } from './control-state.js';
 import { readMachineConfig } from './config.js';
 import { diagnose, highestDiagnosticLevel } from './doctor.js';
+import { ingestBridgeEvent } from './event-handler.js';
 import { ExitCode, type ExitCode as ExitCodeValue } from './exit-codes.js';
 import { stopVerifiedForegroundProcess } from './foreground-process.js';
 import { initializeWorkspace, parseCategories } from './init.js';
 import { installAndStartLaunchAgent, launchAgentLoaded, stopLaunchAgent } from './launchd.js';
 import { LarkCliMinutesClient } from './lark-minutes-client.js';
 import { LiveTranscriptProcessor } from './live-processor.js';
+import { subscribeMinutesEvent } from './minutes-subscription.js';
 import { runRuntime } from './runtime.js';
 import { runSample } from './sample.js';
 import { publicServiceStatus, readServiceState } from './service-state.js';
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const COMMANDS = [
   'init',
   'doctor',
@@ -33,6 +38,7 @@ const COMMANDS = [
   'catch-up',
   'bridge-link',
   'reply',
+  'ingest-event',
 ] as const;
 
 type Command = (typeof COMMANDS)[number];
@@ -41,6 +47,7 @@ export interface CliIO {
   stdout: (message: string) => void;
   stderr: (message: string) => void;
   question?: (prompt: string) => Promise<string>;
+  readStdin?: () => Promise<string>;
 }
 
 const defaultIO: CliIO = {
@@ -57,6 +64,13 @@ const defaultIO: CliIO = {
     } finally {
       reader.close();
     }
+  },
+  readStdin: async () => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of process.stdin) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
+    }
+    return Buffer.concat(chunks).toString('utf8');
   },
 };
 
@@ -189,7 +203,10 @@ async function runCatchUp(args: readonly string[], io: CliIO): Promise<ExitCodeV
         'catch-up may send confirmation messages; review the configured target and add --confirm-external-writes',
       );
     }
-    const client = new LarkCliMinutesClient(workspaceRoot);
+    const config = await readMachineConfig(workspaceRoot);
+    const client = new LarkCliMinutesClient(workspaceRoot, {
+      env: bridgeProfileEnvironment(config.bridgeProfile, process.env, undefined, 'user'),
+    });
     const processor = new LiveTranscriptProcessor(
       workspaceRoot,
       new CodexCliRunner(workspaceRoot),
@@ -240,19 +257,41 @@ async function runStart(args: readonly string[], io: CliIO): Promise<ExitCodeVal
       throw new Error('Bridge reply link is not installed; run recording-agent bridge-link first');
     }
 
-    const foreground = args.includes('--foreground');
-    if (foreground) {
-      io.stdout('Starting in the foreground. Stop with Ctrl+C or recording-agent stop.');
-      await runRuntime(workspaceRoot);
-      return ExitCode.success;
-    }
     if (process.platform !== 'darwin') {
-      io.stderr('This platform is beta and supports only start --foreground.');
+      io.stderr('The single-connection Bridge Hook is currently supported on macOS only.');
       return ExitCode.unavailable;
     }
 
+    const hookEntry = fileURLToPath(new URL('./bridge-hook.js', import.meta.url));
+    const hook = await installBridgeHook(config.bridgeProfile, hookEntry);
+    const subscription = await subscribeMinutesEvent(workspaceRoot);
+    await setBridgeEventEnabled(workspaceRoot, true);
+    io.stdout(
+      `${hook.changed ? 'Installed' : 'Verified'} Minutes Hook on Bridge service: ${hook.label}`,
+    );
+    io.stdout(
+      `${subscription.changed ? 'Created' : 'Verified'} Minutes event subscription acknowledgement for the same Feishu application.`,
+    );
+
+    const foreground = args.includes('--foreground');
+    if (foreground) {
+      io.stdout('Starting the retry worker in the foreground. Stop with Ctrl+C.');
+      try {
+        await runRuntime(workspaceRoot);
+      } finally {
+        await setBridgeEventEnabled(workspaceRoot, false);
+      }
+      return ExitCode.success;
+    }
+
     const runtimeEntry = fileURLToPath(new URL('./runtime.js', import.meta.url));
-    const result = await installAndStartLaunchAgent(workspaceRoot, process.execPath, runtimeEntry);
+    let result;
+    try {
+      result = await installAndStartLaunchAgent(workspaceRoot, process.execPath, runtimeEntry);
+    } catch (error) {
+      await setBridgeEventEnabled(workspaceRoot, false);
+      throw error;
+    }
     io.stdout(
       `${result.restarted ? 'Restarted' : 'Started'} macOS launchd service: ${result.label}`,
     );
@@ -307,11 +346,44 @@ async function runReply(args: readonly string[], io: CliIO): Promise<ExitCodeVal
   }
 }
 
+async function runIngestEvent(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
+  try {
+    const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    if (io.readStdin === undefined)
+      throw new Error('ingest-event requires an NDJSON payload on stdin');
+    const payload = (await io.readStdin()).trim();
+    if (payload === '') throw new Error('ingest-event received an empty payload');
+    const result = await ingestBridgeEvent(workspaceRoot, JSON.parse(payload));
+    io.stdout(
+      JSON.stringify({
+        outcome: result.outcome,
+        ...('recordingId' in result ? { recordingId: result.recordingId } : {}),
+        ...('errorCode' in result ? { errorCode: result.errorCode } : {}),
+      }),
+    );
+    return result.outcome === 'failed' ? ExitCode.failure : ExitCode.success;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown event ingestion error';
+    io.stderr(`Event ingestion failed: ${message}`);
+    return ExitCode.failure;
+  }
+}
+
 async function runStatus(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
   try {
     const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
     const state = await readServiceState(workspaceRoot);
     const status = publicServiceStatus(state);
+    const control = await new ControlStateStore(workspaceRoot).read();
+    status.counts = Object.values(control.events).reduce(
+      (counts, event) => {
+        if (event.status === 'processed') counts.processed += 1;
+        else if (event.status === 'transcript_pending') counts.pending += 1;
+        else if (event.status === 'failed') counts.failed += 1;
+        return counts;
+      },
+      { processed: 0, pending: 0, failed: 0 },
+    );
     if (process.platform === 'darwin') {
       status.launchdLoaded = await launchAgentLoaded(workspaceRoot);
     } else {
@@ -329,6 +401,9 @@ async function runStatus(args: readonly string[], io: CliIO): Promise<ExitCodeVa
 async function runStop(args: readonly string[], io: CliIO): Promise<ExitCodeValue> {
   try {
     const workspaceRoot = await answer(args, '--workspace', 'Starter workspace 的绝对路径：', io);
+    if (await bridgeReplyLinked(workspaceRoot)) {
+      await setBridgeEventEnabled(workspaceRoot, false);
+    }
     if (process.platform === 'darwin' && (await stopLaunchAgent(workspaceRoot))) {
       io.stdout('Stopped macOS launchd service. Queue and failure state were preserved.');
       return ExitCode.success;
@@ -363,13 +438,14 @@ Commands:
   catch-up --days 1    Recover missed recording events
   bridge-link          Link the existing Bridge/Codex reply path
   reply                Apply one idempotent Bridge reply locally
+  ingest-event         Internal Bridge Hook event entry (stdin only)
 
 Options:
   -h, --help           Show this help
   -v, --version        Show version
 
 Current milestone:
-  v0.1.0 has passed the maintainer's isolated real end-to-end validation.
+  v0.2.0 uses one Feishu app and one Bridge connection on macOS.
   Run doctor --live in your own environment before enabling external writes.`;
 }
 
@@ -402,6 +478,9 @@ export function commandHelpText(command: Command): string {
   [--workspace <absolute-path>]
   --message-id <bridge-message-id>
   --text <exact-command-text>`,
+    'ingest-event': `recording-agent ingest-event
+  [--workspace <absolute-path>]
+  # accepts one sanitized Minutes event on stdin`,
   };
   return `${usage[command]}
 
@@ -445,6 +524,7 @@ export async function runCli(
   if (first === 'stop') return runStop(args.slice(1), io);
   if (first === 'bridge-link') return runBridgeLink(args.slice(1), io);
   if (first === 'reply') return runReply(args.slice(1), io);
+  if (first === 'ingest-event') return runIngestEvent(args.slice(1), io);
 
   io.stderr('Internal command dispatch error.');
   return ExitCode.failure;

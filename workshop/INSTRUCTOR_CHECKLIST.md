@@ -35,10 +35,11 @@
 
 ## 真实外部写入门
 
-- [ ] 运行 `doctor --live` 并确认全绿。
+- [ ] 首次启动前确认身份、profile、Bridge 和同应用检查全绿；只允许 Hook/订阅尚未安装。
 - [ ] 向学员展示具体确认目标与发送身份。
 - [ ] 再次确认目标只包含本人或明确私人测试群。
 - [ ] 只有确认后才使用 `--confirm-external-writes`。
+- [ ] 启动后重新运行 `doctor --live` 并确认全部为 GREEN。
 - [ ] 不临时扩大 Bridge 允许用户范围。
 - [ ] 不用 P2P 高频轮询替代现有 Bridge/Codex 回复链。
 
@@ -62,7 +63,7 @@
 
 ## 生命周期与恢复
 
-- [ ] 重启 LaunchAgent，核对新 PID 与消费者 ready。
+- [ ] 重启 Starter retry worker，核对新 PID 与 `retryWorker` ready；Bridge Hook 仍在同一连接。
 - [ ] 核对控制状态、记录和审计仍在。
 - [ ] 重放事件不重复整理或通知。
 - [ ] 不把完整 macOS logout/login 自行升级为发布门。

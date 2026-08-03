@@ -20,7 +20,7 @@
 
 ## 讲师准备
 
-- [ ] 使用与学员将拿到的同一 `v0.1.0` Release ZIP 与 SHA-256。
+- [ ] 只有 `v0.2.0` 全部发布门通过后，才使用学员将拿到的同一 Release ZIP 与 SHA-256。
 - [ ] 在隔离目录校验 ZIP、安装、CLI help、`doctor` 和 `sample`。
 - [ ] 确认正式包来自公开 Release，不包含私人配置、真实录音或 Transcript。
 - [ ] 准备断网可打开的 Slidev 静态 HTML 和 PDF 兜底。
@@ -30,7 +30,7 @@
 
 ## 学员设备
 
-- [ ] macOS 可用；Windows 仅按 beta 前台路线参与。
+- [ ] macOS 可用；Windows 当前只做离线 sample，不进入真实事件 Loop。
 - [ ] Node.js `>=20.12`。
 - [ ] npm 可用。
 - [ ] Codex CLI 已安装并登录。
@@ -62,7 +62,7 @@
 
 - 发送目标包含他人或存在多个候选。
 - 无法证明目标是本人或明确私人测试群。
-- `doctor --live` 非 GREEN。
+- 启动后 `doctor --live` 非 GREEN；首次启动前只允许 Hook/订阅两项因未安装而 RED。
 - user/bot 身份与权限不明确。
 - 候选包校验失败。
 - 只能用 mock、fixture 或截图替代真实链路。

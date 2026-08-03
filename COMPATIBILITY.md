@@ -1,16 +1,19 @@
 # Compatibility Baseline
 
-Observed and revalidated on 2026-07-30:
+Observed and revalidated on 2026-08-03:
 
-| Component             | Project contract                   | Observed version         | v0.1.0 status                          |
-| --------------------- | ---------------------------------- | ------------------------ | -------------------------------------- |
-| macOS                 | V1 supported host                  | Current development host | Isolated real E2E passed               |
-| Node.js runtime       | `>=20.12`                          | `v22.22.3`               | Compatible                             |
-| Node.js development   | `^20.19.0 \|\| ^22.13.0 \|\| >=24` | `v22.22.3`               | Enforced by `devEngines`               |
-| npm                   | Bundled with Node                  | `10.9.8`                 | Compatible                             |
-| Codex CLI             | Installed and logged in            | `0.144.1`                | Real structured run passed             |
-| `lark-channel-bridge` | PersonalAgent profile              | `0.5.8`                  | Existing Bridge reply path passed      |
-| `lark-cli`            | Local Feishu CLI                   | `1.0.68`                 | Real event, Transcript and send passed |
+| Component             | Project contract                   | Observed version         | v0.2.0 candidate status            |
+| --------------------- | ---------------------------------- | ------------------------ | ---------------------------------- |
+| macOS                 | Single-connection supported host   | Current development host | Package/process gates passed       |
+| Node.js runtime       | `>=20.12`                          | `v22.22.3`               | Compatible                         |
+| Node.js development   | `^20.19.0 \|\| ^22.13.0 \|\| >=24` | `v22.22.3`               | Enforced by `devEngines`           |
+| npm                   | Bundled with Node                  | `12.0.2`                 | Old/new pack JSON supported        |
+| Codex CLI             | Installed and logged in            | `0.146.0`                | Packaged fake-provider gate passed |
+| `lark-channel-bridge` | One existing personal profile      | `0.6.4`                  | Preload compatibility passed       |
+| `lark-cli`            | Same-app isolated bot/user configs | `1.0.81`                 | Subscription dry-run passed        |
+
+The final `v0.2.0` gate still requires a new safe real recording on a clean student-like profile.
+The production profile on the maintainer's Mac was intentionally not modified for candidate tests.
 
 Development dependencies are exactly pinned to TypeScript `5.9.3`, ESLint `10.8.0`,
 `@eslint/js` `10.0.1`, `typescript-eslint` `8.65.0`, Vitest `4.1.10`, Prettier `3.9.6` and

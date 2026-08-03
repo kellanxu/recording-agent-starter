@@ -184,6 +184,8 @@ describe('doctor', () => {
     const diagnostics = await diagnose(workspaceRoot, {
       live: true,
       isBridgeReplyLinked: () => Promise.resolve(true),
+      isBridgeHookInstalled: () => Promise.resolve(true),
+      isMinutesSubscriptionReady: () => Promise.resolve(true),
       runCommand: (command, args, options) => {
         if (command === 'lark-channel-bridge' && args[0] === 'profile') {
           return {
@@ -192,11 +194,15 @@ describe('doctor', () => {
             stderr: '',
           };
         }
+        if (command === 'lark-channel-bridge' && args[0] === 'status') {
+          return { status: 0, stdout: 'running\n', stderr: '' };
+        }
         if (command === 'lark-cli' && args[0] === 'auth') {
-          if (options?.env?.LARK_CHANNEL_PROFILE === 'SafeProfile') {
+          if (!options?.env?.LARKSUITE_CLI_CONFIG_DIR?.endsWith('lark-cli-user')) {
             return {
               status: 0,
               stdout: JSON.stringify({
+                appId: 'safe-app',
                 verified: true,
                 identities: { bot: { status: 'ready' } },
               }),
@@ -206,8 +212,16 @@ describe('doctor', () => {
           return {
             status: 0,
             stdout: JSON.stringify({
+              appId: 'safe-app',
               verified: true,
-              identities: { user: { status: 'ready', tokenStatus: 'valid' } },
+              identities: {
+                user: {
+                  status: 'ready',
+                  tokenStatus: 'valid',
+                  scope:
+                    'minutes:minutes.basic:read minutes:minutes.search:read minutes:minutes.media:export',
+                },
+              },
             }),
             stderr: '',
           };
@@ -216,5 +230,86 @@ describe('doctor', () => {
       },
     });
     expect(highestDiagnosticLevel(diagnostics)).toBe('green');
+    expect(diagnostics).toContainEqual({
+      level: 'green',
+      name: 'bridge-minutes-hook',
+      message: 'same-connection Minutes hook is installed',
+    });
+  });
+
+  it('stays red when a valid Feishu token lacks a required Minutes scope', async () => {
+    const root = testRoot('live-doctor-missing-scope');
+    const workspaceRoot = join(root, 'workspace');
+    await initializeWorkspace({
+      workspaceRoot,
+      libraryRoot: join(root, 'library'),
+      source: '安全样本',
+      categories: ['默认'],
+      retentionRule: '保留证据',
+      bridgeProfile: 'SafeProfile',
+      confirmationTarget: {
+        kind: 'chat',
+        id: 'safe-chat-target',
+        identity: 'bot',
+      },
+    });
+    const diagnostics = await diagnose(workspaceRoot, {
+      live: true,
+      isBridgeReplyLinked: () => Promise.resolve(true),
+      isBridgeHookInstalled: () => Promise.resolve(true),
+      isMinutesSubscriptionReady: () => Promise.resolve(true),
+      runCommand: (command, args, options) => {
+        if (command === 'lark-channel-bridge' && args[0] === 'profile') {
+          return {
+            status: 0,
+            stdout: 'ACTIVE PROFILE AGENT STATUS\n* SafeProfile codex stopped\n',
+            stderr: '',
+          };
+        }
+        if (command === 'lark-channel-bridge' && args[0] === 'status') {
+          return { status: 0, stdout: 'running\n', stderr: '' };
+        }
+        if (command === 'lark-cli' && args[0] === 'auth') {
+          if (!options?.env?.LARKSUITE_CLI_CONFIG_DIR?.endsWith('lark-cli-user')) {
+            return {
+              status: 0,
+              stdout: JSON.stringify({
+                appId: 'safe-app',
+                verified: true,
+                identities: { bot: { status: 'ready' } },
+              }),
+              stderr: '',
+            };
+          }
+          return {
+            status: 0,
+            stdout: JSON.stringify({
+              appId: 'safe-app',
+              verified: true,
+              identities: {
+                user: {
+                  status: 'ready',
+                  tokenStatus: 'valid',
+                  scope: 'minutes:minutes.media:export',
+                },
+              },
+            }),
+            stderr: '',
+          };
+        }
+        return { status: 0, stdout: `${command} safe-version\n`, stderr: '' };
+      },
+    });
+    expect(highestDiagnosticLevel(diagnostics)).toBe('red');
+    expect(diagnostics).toContainEqual({
+      level: 'red',
+      name: 'feishu-user-auth',
+      message: 'missing required scopes: minutes:minutes.basic:read, minutes:minutes.search:read',
+    });
+    expect(diagnostics).toContainEqual({
+      level: 'green',
+      name: 'bridge-minutes-hook',
+      message: 'same-connection Minutes hook is installed',
+    });
   });
 });

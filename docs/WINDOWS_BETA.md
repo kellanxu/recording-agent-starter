@@ -1,7 +1,7 @@
-# Windows Beta 教程
+# Windows 当前边界
 
-Windows 路线目前只支持前台运行，不承诺后台常驻或机器重启恢复。真实 Windows E2E
-尚未执行。
+`v0.2.0` 的单连接 Bridge Hook 依赖 macOS LaunchAgent。Windows 当前只支持初始化、
+离线诊断和安全 sample，不支持真实事件 `start`。
 
 ## 安装与离线验证
 
@@ -22,17 +22,8 @@ recording-agent sample --workspace C:\absolute\path\to\starter-workspace
 
 不要把 workspace 或 Markdown 库设置为磁盘根、用户主目录根或临时目录。
 
-## 前台运行
+## 暂不可用的部分
 
-完成本人飞书配置、确认目标核对和 live doctor 后：
-
-```powershell
-recording-agent start `
-  --workspace C:\absolute\path\to\starter-workspace `
-  --foreground `
-  --confirm-external-writes
-```
-
-保持窗口开启。停止方式是该窗口按 `Ctrl+C`。队列、失败状态和审计会保留。
-
-Windows 未完成真实 E2E 前，不要把它描述为正式支持，也不要设置第三方后台服务包装器。
+`recording-agent start` 会明确返回 unavailable。不要用第二条 `lark-cli event consume`、
+第三方后台包装器或高频扫描绕过这一边界。Windows 的原生生命周期与真实 E2E 完成后，
+才能重新标记为 beta。

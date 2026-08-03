@@ -47,11 +47,13 @@ export class LarkCliError extends Error {
 export interface LarkCliMinutesClientOptions {
   now?: () => Date;
   executable?: string;
+  env?: NodeJS.ProcessEnv;
 }
 
 export class LarkCliMinutesClient implements TranscriptProvider, CatchUpSource {
   private readonly now: () => Date;
   private readonly executable: string;
+  private readonly env: NodeJS.ProcessEnv;
 
   constructor(
     private readonly workspaceRoot: string,
@@ -59,6 +61,7 @@ export class LarkCliMinutesClient implements TranscriptProvider, CatchUpSource {
   ) {
     this.now = options.now ?? (() => new Date());
     this.executable = options.executable ?? 'lark-cli';
+    this.env = options.env ?? process.env;
   }
 
   async fetch(minuteToken: string): Promise<TranscriptResult> {
@@ -167,7 +170,7 @@ export class LarkCliMinutesClient implements TranscriptProvider, CatchUpSource {
         encoding: 'utf8',
         maxBuffer: 10 * 1024 * 1024,
         env: {
-          ...process.env,
+          ...this.env,
           LARKSUITE_CLI_NO_UPDATE_NOTIFIER: '1',
           LARKSUITE_CLI_NO_SKILLS_NOTIFIER: '1',
         },

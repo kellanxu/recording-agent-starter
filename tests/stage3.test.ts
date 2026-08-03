@@ -1,4 +1,4 @@
-import { chmod, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { readFile, readdir, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -12,7 +12,6 @@ import {
   type TranscriptResult,
 } from '../src/control-plane.js';
 import { ControlStateStore } from '../src/control-state.js';
-import { MinuteEventConsumer } from '../src/event-consumer.js';
 import { initializeWorkspace } from '../src/init.js';
 import { LiveTranscriptProcessor } from '../src/live-processor.js';
 import {
@@ -303,54 +302,5 @@ describe('deterministic event control plane', () => {
     expect(await readFile(join(libraryRoot, '工作', 'R-0002.md'), 'utf8')).toContain(
       'recording_id: "R-0002"',
     );
-  });
-
-  it('consumes the verified flat NDJSON event stream and stops via stdin EOF', async () => {
-    const root = testRoot('consumer');
-    const executable = join(root, 'fake-lark-cli.mjs');
-    await mkdir(root, { recursive: true });
-    await writeFile(
-      executable,
-      `#!/usr/bin/env node
-process.stderr.write('[event] ready event_key=minutes.minute.generated_v1\\n');
-process.stdout.write(JSON.stringify({
-  type: 'minutes.minute.generated_v1',
-  event_id: 'event-stream-1',
-  timestamp: '1785379200000',
-  minute_token: 'token-stream-1',
-  title: '安全测试录音'
-}) + '\\n');
-process.stdin.resume();
-process.stdin.on('end', () => process.exit(0));
-`,
-      'utf8',
-    );
-    await chmod(executable, 0o700);
-    const calls: string[] = [];
-    const plane = new ControlPlane(
-      root,
-      { fetch: () => Promise.resolve({ transcript: '安全逐字稿' }) },
-      processor(calls),
-    );
-    let resolveResult: (() => void) | undefined;
-    const gotResult = new Promise<void>((resolveResultPromise) => {
-      resolveResult = resolveResultPromise;
-    });
-    const consumer = new MinuteEventConsumer(
-      root,
-      plane,
-      {
-        onResult: () => {
-          resolveResult?.();
-        },
-      },
-      { executable },
-    );
-
-    const running = consumer.start();
-    await gotResult;
-    consumer.stop();
-    await running;
-    expect(calls).toEqual(['event-stream-1']);
   });
 });

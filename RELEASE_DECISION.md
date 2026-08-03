@@ -1,15 +1,23 @@
-# v0.1.0 Release Decision
+# v0.2.0 Release Decision
 
-Decision date: 2026-07-30
+Decision date: 2026-08-03
 
 ## Decision
 
-`v0.1.0` may be published only from the commit that passes the complete release command matrix,
-archive privacy audit, isolated ZIP installation and workshop HTML/PDF verification. GitHub
-publication is allowed after those gates pass. Feishu document synchronization is allowed
-afterward, but public-link permission remains a separate user-confirmed action.
+`v0.2.0` is not yet approved for public or student release. It may be published only from a clean,
+tagged commit after all of these gates pass:
 
-## Dependency risk resolution
+- complete command matrix and privacy scan;
+- archive audit and isolated ZIP installation;
+- packaged Hook child-process flow, replay deduplication and restart rollback;
+- one new safe real recording on a clean student-like macOS profile using one app and one Bridge
+  connection;
+- confirmation reply and persisted-state recovery after service restart.
+
+The current `v0.2.0-dev` ZIP has passed the first three items only. The maintainer's production
+Bridge was intentionally not changed to manufacture the final evidence.
+
+## Dependency risk resolution retained
 
 - The root development toolchain uses ESLint `10.8.0`, `@eslint/js` `10.0.1` and
   `typescript-eslint` `8.65.0`.
@@ -30,9 +38,9 @@ metadata fails the gate.
 
 ## Boundaries retained
 
-- The release archive contains no production dependencies, credentials, IDs, real recording,
+- The candidate archive contains no production dependencies, credentials, IDs, real recording,
   Transcript, Minutes URL, private path or private knowledge-base material.
-- Public screenshots come from the built CLI and bundled safe fixture, with generated machine paths
-  replaced by placeholders.
+- Existing public screenshots remain historical `v0.1.0` material and are not evidence for this
+  candidate.
 - The release does not create tasks, publish user content, delete recordings or widen Feishu
   permissions.

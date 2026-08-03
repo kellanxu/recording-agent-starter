@@ -1,12 +1,21 @@
 # Project Status
 
-Updated: 2026-08-01
+Updated: 2026-08-03
 
 ## Current phase
 
-`phase3-v0.1.0-released-event-readiness-in-progress`
+`v0.2.0-single-connection-candidate-real-e2e-pending`
 
-Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的 `v0.1.0` 已发布。隔离 workspace 的
+`v0.1.0` 已发布并保留为旧事件消费者架构的历史版本。当前本地 `v0.2.0-dev` 已改为
+一个飞书应用、一条现有 Bridge 长连接：Minutes Hook 复用 Bridge 内部 dispatcher，
+bot/user 身份隔离，不再启动第二个 `lark-cli event consume`。56 项测试、构建、隐私和
+许可证审计、Hook 安装回滚、编译后 Bridge preload 兼容、候选 ZIP 隔离安装及打包后
+Hook 子进程链路均已通过。尚缺全新学员式 macOS profile 的真实飞书录音、确认回复与
+服务重启 E2E，因此候选包不得作为正式学员 Release 发布。维护者的正式 `codex` Bridge
+仍加载 `meeting-context-router` 原有 Hook，未被本轮安装、重启或改写。
+
+以下为 `v0.1.0` 历史完成背景：Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的
+`v0.1.0` 已发布。隔离 workspace 的
 live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
 唯一主记录、唯一本人确认单、服务重启与事件重放均已通过。三条独立真实回复的
 message ID 幂等、同一记录回写、分类移动和最终确认也已通过。Stage 8 本地活动材料
@@ -26,10 +35,22 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - 每日一次补漏，不做高频全量扫描。
 - 每条录音只有一个 Markdown 主记录和一份待确认通知。
 - 人工质量门是确认、修改和改分类；V1 不自动创建任务、发布或删除材料。
-- macOS 正式支持，Windows beta。
+- `v0.2.0` 单连接架构当前只支持 macOS；Windows 只开放离线 sample。
+- 每个 Starter 只使用一个飞书应用和一条 Bridge 长连接。
 - 演示 HTML 使用 Slidev，但必须等 Starter v0.1 的真实界面稳定后再做。
 
-## Evidence currently available
+## v0.2.0 candidate evidence
+
+- 10 个测试文件、56 项测试通过。
+- `v0.2.0-dev` ZIP 从隔离 HOME 安装通过，生产依赖为 0。
+- 打包后的 Hook 子进程链路完成一次记录和一次确认，事件重放未再次调用 provider。
+- Bridge Hook 重启失败时恢复原参数和服务；重复安装不重复重启。
+- 候选压缩包 173 个条目通过隐私与路径审计。
+- `lark-channel-bridge 0.6.4` 编译后 preload 兼容检查通过。
+- 正式 `codex` Bridge 只读核验仍运行原 `meeting-context-router` Hook。
+- 新架构真实飞书录音 E2E 尚未执行，不能标记为正式 Release。
+
+## v0.1.0 historical evidence
 
 - 项目根目录独立于私人知识库。
 - Phase 2 基线 commit 为 `696d62918dcfb69e537fd8dc3e5a2de8b716658a`。
@@ -131,7 +152,6 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 
 ## Next action
 
-用户先完成 `workshop/EVENT_RUNBOOK.md` 里的发送门：补全地址、交通、停车与费用，核对
-所有报名者进群，邀请鱼丸并设管理员，发送群公告与绿灯接龙，锁定签到/拍照/录音/开场
-回应伙伴。活动当天生成签到码与反馈码，现场记录作品、连接、72 小时行动和 NPS 证据。
-本轮修订若要同步飞书或修改互联网公开权限，仍需对具体文档与目标档位单独确认。
+在一台不承载维护者正式录音系统的 macOS 上，使用该学员自己的一个飞书应用和一个
+Bridge profile，从候选 ZIP 完成：真实安全妙记录音、唯一 Markdown、唯一确认单、本人
+回复、retry worker 重启和事件重放。全门通过后再从干净 commit 构建并发布 `v0.2.0`。

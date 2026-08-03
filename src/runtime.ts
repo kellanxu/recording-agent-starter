@@ -7,7 +7,7 @@ import { CodexCliRunner } from './codex-cli-runner.js';
 import { configuredNotifier } from './confirmation-notifier.js';
 import { ControlPlane, type IngestResult } from './control-plane.js';
 import { readMachineConfig } from './config.js';
-import { MinuteEventConsumer } from './event-consumer.js';
+import { bridgeProfileEnvironment } from './bridge-profile.js';
 import { LarkCliMinutesClient } from './lark-minutes-client.js';
 import { LiveTranscriptProcessor } from './live-processor.js';
 import { type ServiceState, writeServiceState } from './service-state.js';
@@ -32,14 +32,13 @@ export async function runRuntime(
   }
   const startedAt = now().toISOString();
   const state: ServiceState = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     status: 'starting',
     pid: process.pid,
     platform: process.platform,
     startedAt,
     updatedAt: startedAt,
-    minuteConsumerReady: false,
-    imConsumerReady: true,
+    retryWorkerReady: false,
     processedCount: 0,
     pendingCount: 0,
     failedCount: 0,
@@ -50,7 +49,9 @@ export async function runRuntime(
   };
   await persist();
 
-  const client = new LarkCliMinutesClient(workspaceRoot);
+  const client = new LarkCliMinutesClient(workspaceRoot, {
+    env: bridgeProfileEnvironment(config.bridgeProfile, process.env, undefined, 'user'),
+  });
   const processor = new LiveTranscriptProcessor(
     workspaceRoot,
     new CodexCliRunner(workspaceRoot),
@@ -64,15 +65,14 @@ export async function runRuntime(
     else if (result.outcome === 'failed') state.failedCount += 1;
     void persist();
   };
-  const minuteConsumer = new MinuteEventConsumer(workspaceRoot, plane, {
-    onReady: () => {
-      state.minuteConsumerReady = true;
-      if (state.imConsumerReady) state.status = 'running';
-      void persist();
-    },
-    onResult: count,
-  });
+  state.retryWorkerReady = true;
+  state.status = 'running';
+  await persist();
   let stopping = false;
+  let finish: (() => void) | undefined;
+  const stopped = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
   const retryTimer = setInterval(() => {
     void plane.retryDue().then((results) => {
       results.forEach(count);
@@ -95,21 +95,22 @@ export async function runRuntime(
     clearInterval(retryTimer);
     clearInterval(catchUpTimer);
     clearInterval(heartbeatTimer);
-    minuteConsumer.stop();
+    finish?.();
   };
   process.once('SIGTERM', stop);
   process.once('SIGINT', stop);
 
   try {
-    await minuteConsumer.start();
+    await stopped;
     state.status = 'stopped';
     await persist();
-  } catch {
+  } catch (error) {
     stop();
     state.status = 'failed';
-    state.lastErrorCode = 'runtime_consumer_failed';
+    state.lastErrorCode = 'retry_worker_failed';
     await persist();
-    throw new Error('runtime consumer failed');
+    const message = error instanceof Error ? error.message : 'unknown retry worker failure';
+    throw new Error(`retry worker failed: ${message}`, { cause: error });
   } finally {
     process.removeListener('SIGTERM', stop);
     process.removeListener('SIGINT', stop);

@@ -116,3 +116,20 @@
 - [ ] 如需把本轮修订同步到飞书，先回读具体目标文档与权限档位，再单独执行。
 
 验收：活动完成证据同时覆盖作品、连接、行动和反馈；未发生的现场结果保持未完成。
+
+## Stage 10：v0.2.0 单连接架构
+
+- [x] 移除 Starter 的第二个 `lark-cli event consume`。
+- [x] 在现有 Bridge dispatcher 注册 Minutes Hook。
+- [x] 同一应用下隔离 bot/user 本机身份，并在 live doctor 校验同应用。
+- [x] 实现 Hook 安装幂等、启动验证和失败恢复原 Bridge。
+- [x] 事件只通过 stdin 进入子进程，Hook 日志不记录 minute token。
+- [x] retry worker 与事件监听解耦；每日补漏保留，不做 15 分钟轮询。
+- [x] 候选 ZIP 隔离安装和打包后 Hook 子进程链路通过。
+- [x] Windows 真实启动改为 unavailable，不保留不真实的前台 beta 承诺。
+- [ ] 在全新学员式 macOS profile 完成真实安全妙记 E2E。
+- [ ] 验证真实确认回复、服务重启与重放不重复。
+- [ ] 从干净 commit 构建、签名并发布 `v0.2.0`。
+
+验收：一个应用、一条 Bridge 长连接完成完整真实 Loop；旧 `v0.1.0` Release 保留为
+历史版本，不覆盖 tag 或资产。

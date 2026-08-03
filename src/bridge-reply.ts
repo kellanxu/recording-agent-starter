@@ -9,10 +9,11 @@ import { readMachineConfig } from './config.js';
 const LINK_SCHEMA_VERSION = 1;
 const SKILL_NAME = 'recording-agent-reply';
 
-interface BridgeReplyLink {
+export interface BridgeReplyLink {
   schemaVersion: 1;
   workspaceRoot: string;
   command: [string, string];
+  eventEnabled: boolean;
   linkedAt: string;
 }
 
@@ -40,6 +41,25 @@ function paths(options: BridgeReplyInstallOptions = {}): BridgeReplyPaths {
     skillPath: join(skillRoot, 'SKILL.md'),
     agentMetadataPath: join(skillRoot, 'agents', 'openai.yaml'),
   };
+}
+
+async function readLink(options: BridgeReplyInstallOptions = {}): Promise<BridgeReplyLink> {
+  const parsed = JSON.parse(
+    await readFile(paths(options).registryPath, 'utf8'),
+  ) as Partial<BridgeReplyLink>;
+  if (
+    parsed.schemaVersion !== LINK_SCHEMA_VERSION ||
+    typeof parsed.workspaceRoot !== 'string' ||
+    !parsed.workspaceRoot.startsWith('/') ||
+    !Array.isArray(parsed.command) ||
+    parsed.command.length !== 2 ||
+    !parsed.command.every((value) => typeof value === 'string' && value.startsWith('/')) ||
+    typeof parsed.linkedAt !== 'string' ||
+    typeof parsed.eventEnabled !== 'boolean'
+  ) {
+    throw new Error('Bridge link registry is invalid');
+  }
+  return parsed as BridgeReplyLink;
 }
 
 function sourceRoot(options: BridgeReplyInstallOptions): string {
@@ -76,6 +96,7 @@ export async function linkBridgeReply(
           schemaVersion: LINK_SCHEMA_VERSION,
           workspaceRoot: config.workspaceRoot,
           command: [process.execPath, fileURLToPath(new URL('./cli.js', import.meta.url))],
+          eventEnabled: false,
           linkedAt: now.toISOString(),
         } satisfies BridgeReplyLink,
         null,
@@ -93,21 +114,39 @@ export async function bridgeReplyLinked(
 ): Promise<boolean> {
   try {
     const destination = paths(options);
-    const parsed = JSON.parse(
-      await readFile(destination.registryPath, 'utf8'),
-    ) as Partial<BridgeReplyLink>;
-    if (
-      parsed.schemaVersion !== LINK_SCHEMA_VERSION ||
-      parsed.workspaceRoot !== workspaceRoot ||
-      !Array.isArray(parsed.command) ||
-      parsed.command.length !== 2 ||
-      !parsed.command.every((value) => typeof value === 'string' && value.startsWith('/')) ||
-      typeof parsed.linkedAt !== 'string'
-    ) {
-      return false;
-    }
+    const parsed = await readLink(options);
+    if (parsed.workspaceRoot !== workspaceRoot) return false;
     await Promise.all([access(destination.skillPath), access(destination.agentMetadataPath)]);
     return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function setBridgeEventEnabled(
+  workspaceRoot: string,
+  enabled: boolean,
+  options: BridgeReplyInstallOptions = {},
+): Promise<void> {
+  const destination = paths(options);
+  const current = await readLink(options);
+  if (current.workspaceRoot !== workspaceRoot) {
+    throw new Error('Bridge link points to a different Starter workspace');
+  }
+  await writeFileAtomic(
+    destination.registryPath,
+    `${JSON.stringify({ ...current, eventEnabled: enabled }, null, 2)}\n`,
+    0o600,
+  );
+}
+
+export async function bridgeEventEnabled(
+  workspaceRoot: string,
+  options: BridgeReplyInstallOptions = {},
+): Promise<boolean> {
+  try {
+    const current = await readLink(options);
+    return current.workspaceRoot === workspaceRoot && current.eventEnabled;
   } catch {
     return false;
   }

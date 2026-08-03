@@ -1,7 +1,7 @@
 # macOS 安装教程
 
-> 本教程对应 `v0.1.0`。只从项目的 GitHub Release 下载 ZIP 与同名 SHA-256，
-> 校验通过后再安装；不要使用聊天附件、网盘转存或来源不明的副本。
+> 本教程对应 `v0.2.0` 单连接架构。正式 Release 尚未发布；当前候选包只用于讲师隔离
+> 验证，不能直接发给学员冒充正式版。
 
 ## 1. 检查前置条件
 
@@ -20,8 +20,8 @@ Markdown 库；不要共享密钥或机器人。
 ## 2. 校验并解压 ZIP
 
 ```bash
-shasum -a 256 -c recording-agent-starter-0.1.0.zip.sha256
-unzip recording-agent-starter-0.1.0.zip
+shasum -a 256 -c recording-agent-starter-0.2.0.zip.sha256
+unzip recording-agent-starter-0.2.0.zip
 cd recording-agent-starter
 ```
 
@@ -68,7 +68,9 @@ recording-agent sample --workspace /absolute/path/to/starter-workspace
 recording-agent doctor --workspace /absolute/path/to/starter-workspace --live
 ```
 
-只有全绿后才进入真实验收。启动命令会先展示确认目标和发送身份；核对无误后才追加：
+首次启动前，身份授权、Bridge profile、Bridge 运行状态和“同一个应用”必须为 GREEN；
+Hook 与订阅两项尚未安装时为 RED 是预期结果。启动命令会先展示确认目标和发送身份；
+核对无误后才追加：
 
 ```bash
 recording-agent start \
@@ -76,14 +78,15 @@ recording-agent start \
   --confirm-external-writes
 ```
 
-查看与停止：
+启动后重新运行 `doctor --live`，此时才要求全部 GREEN。然后查看与停止：
 
 ```bash
 recording-agent status --workspace /absolute/path/to/starter-workspace
 recording-agent stop --workspace /absolute/path/to/starter-workspace
 ```
 
-停止保留队列、失败状态和审计。不要手工 `kill -9` 事件消费者。
+停止会关闭 Starter 事件派发和重试 worker，但保留 Bridge、本地 Hook、队列、失败状态和
+审计。不要手工修改 Bridge plist 或使用 `kill -9`。
 
 ## 7. 失败恢复
 
