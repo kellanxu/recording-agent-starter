@@ -126,6 +126,7 @@
 - [x] 事件只通过 stdin 进入子进程，Hook 日志不记录 minute token。
 - [x] retry worker 与事件监听解耦；每日补漏保留，不做 15 分钟轮询。
 - [x] 候选 ZIP 隔离安装和打包后 Hook 子进程链路通过。
+- [x] 从干净 tagged commit 发布 `v0.2.0-beta.1` Pre-release，并回读下载校验值。
 - [x] Windows 真实启动改为 unavailable，不保留不真实的前台 beta 承诺。
 - [ ] 在全新学员式 macOS profile 完成真实安全妙记 E2E。
 - [ ] 验证真实确认回复、服务重启与重放不重复。

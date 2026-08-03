@@ -28,6 +28,14 @@ Not yet verified for `v0.2.0`:
 Therefore the current archive is a student-testing Pre-release, not the stable Release. The
 production `codex` profile was intentionally left untouched.
 
+GitHub Pre-release publication was verified on 2026-08-03:
+
+- tag `v0.2.0-beta.1` resolves to commit `67ffc55428a871dd6beae613f266700ad6a60f27`;
+- ZIP and adjacent SHA-256 assets are both uploaded;
+- the downloaded ZIP passed the adjacent checksum with SHA-256
+  `17a421b507ef561b6b1176a46d269215573cad5f5b37b3aeec4b2dd190a121af`;
+- GitHub marks it as Pre-release, while stable `v0.1.0` remains Latest.
+
 ## Historical v0.1.0 evidence
 
 The evidence below belongs to the earlier `v0.1.0` event-consumer architecture. It remains as

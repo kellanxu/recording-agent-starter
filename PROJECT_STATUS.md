@@ -14,6 +14,10 @@ Hook 子进程链路均已通过。尚缺全新学员式 macOS profile 的真实
 服务重启 E2E，因此只允许作为 Pre-release 供学员自愿测试，不得称为稳定版。维护者的正式 `codex` Bridge
 仍加载 `meeting-context-router` 原有 Hook，未被本轮安装、重启或改写。
 
+`v0.2.0-beta.1` 已于 2026-08-03 发布为 GitHub Pre-release：
+`https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.1`。远端下载
+ZIP 已使用相邻 SHA-256 文件复核通过；稳定版 `v0.1.0` 继续保留为 Latest。
+
 以下为 `v0.1.0` 历史完成背景：Phase 3 Stage 6 的真实 E2E 已通过，Stage 7 的
 `v0.1.0` 已发布。隔离 workspace 的
 live doctor、LaunchAgent、一条全新 60 秒私人妙记的实时事件、真实 Transcript/Codex、
@@ -49,6 +53,7 @@ message ID 幂等、同一记录回写、分类移动和最终确认也已通过
 - `lark-channel-bridge 0.6.4` 编译后 preload 兼容检查通过。
 - 正式 `codex` Bridge 只读核验仍运行原 `meeting-context-router` Hook。
 - 新架构真实飞书录音 E2E 尚未执行，不能标记为正式 Release。
+- `v0.2.0-beta.1` tag、Pre-release、ZIP 与 SHA-256 已发布并完成下载回读校验。
 
 ## v0.1.0 historical evidence
 

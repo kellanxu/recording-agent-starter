@@ -6,6 +6,9 @@
 > 第二个飞书事件监听器。自动化门、隔离 ZIP 安装和打包后子进程链路已经通过；全新环境
 > 的真实飞书录音 E2E 尚待完成，因此它是供学员测试的 Pre-release，不是稳定版。
 
+[下载 v0.2.0-beta.1 Pre-release](https://github.com/kellanxu/recording-agent-starter/releases/tag/v0.2.0-beta.1)
+。下载 ZIP 时请同时下载同名 `.sha256` 文件并先完成校验。
+
 ## 计划完成的 Loop
 
 ```text
